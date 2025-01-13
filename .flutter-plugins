@@ -1,0 +1,18 @@
+# This is a generated file; do not edit or check into version control.
+cloud_firestore=/Users/microsfc/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.1/
+cloud_firestore_web=/Users/microsfc/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.1/
+file_selector_linux=/Users/microsfc/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.3+2/
+file_selector_macos=/Users/microsfc/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.4+2/
+file_selector_windows=/Users/microsfc/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+3/
+firebase_core=/Users/microsfc/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/
+firebase_core_web=/Users/microsfc/.pub-cache/hosted/pub.dev/firebase_core_web-2.19.0/
+firebase_storage=/Users/microsfc/.pub-cache/hosted/pub.dev/firebase_storage-12.4.0/
+firebase_storage_web=/Users/microsfc/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.7/
+flutter_plugin_android_lifecycle=/Users/microsfc/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.24/
+image_picker=/Users/microsfc/.pub-cache/hosted/pub.dev/image_picker-0.8.9/
+image_picker_android=/Users/microsfc/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/
+image_picker_for_web=/Users/microsfc/.pub-cache/hosted/pub.dev/image_picker_for_web-2.2.0/
+image_picker_ios=/Users/microsfc/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.12+2/
+image_picker_linux=/Users/microsfc/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.1+1/
+image_picker_macos=/Users/microsfc/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.1+1/
+image_picker_windows=/Users/microsfc/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.1+1/
