@@ -2,6 +2,8 @@ import './timeline_page.dart';
 import './add_record_page.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
+import './calendar_page.dart';
+import '../generated/l10n.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,8 +18,9 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   final _screenList = [
-    const TimelinePage(),
+    TimelinePage(),
     const AddRecordPage(),
+    const CalendarPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -55,6 +58,10 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(
             icon: const Icon(Icons.add_a_photo),
             label: "Addd Record",
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.calendar_month),
+            label: "Calendar",
           )
         ],
         onDestinationSelected: _onItemTapped,

@@ -1,3 +1,6 @@
+import 'package:children/services/auth_service.dart';
+import 'package:children/state/AppState.dart';
+
 import 'pages/home_page.dart';
 import 'pages/timeline_page.dart';
 import './models/baby_record.dart';
@@ -9,6 +12,11 @@ import 'package:provider/provider.dart';
 import 'services/firestore_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart'; // FlutterFire CLI 產生
+import 'pages/calendar_page.dart';
+import 'pages/daily_records_page.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:children/generated/l10n.dart';
+import 'pages/login_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,23 +37,32 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<FirestoreService>(create: (_) => FirestoreService()),
         Provider<StorageService>(create: (_) => StorageService()),
+        Provider<AuthService>(create: (_) => AuthService()),
+        ChangeNotifierProvider<AppState>(create: (_) => AppState()),
       ],
       child: MaterialApp(
-        title: 'Baby Growth Tracker',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.blue, brightness: Brightness.light),
         ),
         themeMode: ThemeMode.system,
-        home: const HomePage(),
+        supportedLocales: S.delegate.supportedLocales,
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: LoginPage(),
         onGenerateRoute: (settings) {
           switch (settings.name) {
+            case LoginPage.routeName:
+              return MaterialPageRoute(builder: (context) => LoginPage());
             case HomePage.routeName:
               return MaterialPageRoute(builder: (context) => const HomePage());
             case TimelinePage.routeName:
-              return MaterialPageRoute(
-                  builder: (context) => const TimelinePage());
+              return MaterialPageRoute(builder: (context) => TimelinePage());
             case AddRecordPage.routeName:
               return MaterialPageRoute(
                   builder: (context) => const AddRecordPage());
@@ -53,6 +70,15 @@ class MyApp extends StatelessWidget {
               final record = settings.arguments as BabyRecord;
               return MaterialPageRoute(
                   builder: (context) => RecordDetailPage(record: record));
+            case CalendarPage.routeName:
+              return MaterialPageRoute(
+                  builder: (context) => const CalendarPage());
+            case DailyRecordsPage.routeName:
+              final date = settings.arguments as DateTime;
+              final records = settings.arguments as List<BabyRecord>;
+              return MaterialPageRoute(
+                  builder: (context) =>
+                      DailyRecordsPage(date: date, records: records));
             default:
               return null;
           }

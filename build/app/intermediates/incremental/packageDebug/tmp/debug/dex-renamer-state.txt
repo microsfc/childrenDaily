@@ -1,10 +1,10 @@
-#Mon Jan 13 12:15:42 CST 2025
-base.0=/Users/microsfc/Documents/git/children/children/build/app/intermediates/dex/debug/mergeExtDexDebug/classes.dex
-base.1=/Users/microsfc/Documents/git/children/children/build/app/intermediates/dex/debug/mergeLibDexDebug/0/classes.dex
-base.2=/Users/microsfc/Documents/git/children/children/build/app/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
-base.3=/Users/microsfc/Documents/git/children/children/build/app/intermediates/dex/debug/mergeProjectDexDebug/1/classes.dex
-base.4=/Users/microsfc/Documents/git/children/children/build/app/intermediates/dex/debug/mergeProjectDexDebug/4/classes.dex
-base.5=/Users/microsfc/Documents/git/children/children/build/app/intermediates/dex/debug/mergeExtDexDebug/classes2.dex
+#Fri Jan 24 15:47:58 CST 2025
+base.0=/Users/microsfc/Documents/git/childrenDaily/build/app/intermediates/dex/debug/mergeExtDexDebug/classes.dex
+base.1=/Users/microsfc/Documents/git/childrenDaily/build/app/intermediates/dex/debug/mergeLibDexDebug/0/classes.dex
+base.2=/Users/microsfc/Documents/git/childrenDaily/build/app/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
+base.3=/Users/microsfc/Documents/git/childrenDaily/build/app/intermediates/dex/debug/mergeProjectDexDebug/1/classes.dex
+base.4=/Users/microsfc/Documents/git/childrenDaily/build/app/intermediates/dex/debug/mergeProjectDexDebug/4/classes.dex
+base.5=/Users/microsfc/Documents/git/childrenDaily/build/app/intermediates/dex/debug/mergeExtDexDebug/classes2.dex
 path.0=classes.dex
 path.1=0/classes.dex
 path.2=0/classes.dex
