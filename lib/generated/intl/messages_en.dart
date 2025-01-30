@@ -33,11 +33,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "confirm": MessageLookupByLibrary.simpleMessage("Confirm"),
         "date": MessageLookupByLibrary.simpleMessage("Date"),
+        "delete": MessageLookupByLibrary.simpleMessage("Delete"),
         "deleteSuccess":
             MessageLookupByLibrary.simpleMessage("Delete successfully!"),
         "diary": MessageLookupByLibrary.simpleMessage("Diary"),
         "errorOccurred": MessageLookupByLibrary.simpleMessage("Error occurred"),
         "height": MessageLookupByLibrary.simpleMessage("Height"),
+        "noNote": MessageLookupByLibrary.simpleMessage("No note"),
         "noRecordFound":
             MessageLookupByLibrary.simpleMessage("No record found"),
         "pleaseInputRecord":
@@ -48,6 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Please select date and input record"),
         "pleaseSelectPhoto":
             MessageLookupByLibrary.simpleMessage("Please select photo"),
+        "recordDetail": MessageLookupByLibrary.simpleMessage("Record Detail"),
         "save": MessageLookupByLibrary.simpleMessage("Save"),
         "searchKeyword": MessageLookupByLibrary.simpleMessage("Search Keyword"),
         "selectDate": MessageLookupByLibrary.simpleMessage("Select Date"),
@@ -57,6 +60,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Tag (separated by comma)"),
         "timeline": MessageLookupByLibrary.simpleMessage("Timeline"),
         "vaccineStatus": MessageLookupByLibrary.simpleMessage("Note"),
+        "viewPhoto": MessageLookupByLibrary.simpleMessage("View Photo"),
         "weight": MessageLookupByLibrary.simpleMessage("Weight")
       };
 }

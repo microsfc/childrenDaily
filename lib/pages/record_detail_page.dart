@@ -1,7 +1,9 @@
+import 'zoomable_photo_page.dart';
 import './../models/baby_record.dart';
 import 'package:flutter/material.dart';
-import '../widgets/zoomable_photo_page.dart';
+import 'package:children/generated/l10n.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class RecordDetailPage extends StatelessWidget {
   const RecordDetailPage({Key? key, required this.record}) : super(key: key);
@@ -14,20 +16,20 @@ class RecordDetailPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('確定要刪除嗎？'),
+        title: Text(S.of(context).areYouSureToDelete),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(context).pop(), child: Text('取消')),
+              onPressed: () => Navigator.of(context).pop(), child: Text(S.of(context).cancel)),
           TextButton(
               onPressed: () => {
                     deleteRecord(),
                     Navigator.of(context).pop(),
                     Navigator.of(context).pop(),
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('成功刪除紀錄！')),
+                      SnackBar(content: Text(S.of(context).deleteSuccess)),
                     )
                   },
-              child: Text('確定')),
+              child: Text(S.of(context).confirm)),
         ],
       ),
     );
@@ -43,18 +45,18 @@ class RecordDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateStr = record.date.toLocal().toString().split(' ')[0];
-    final noteDesc = record.note.isNotEmpty ? record.note : 'No note';
+    final noteDesc = record.note.isNotEmpty ? record.note : S.of(context).noNote;
     final vaccineText = record.vaccineStatus.isNotEmpty
-        ? 'Vaccine: ${record.vaccineStatus}'
-        : 'No vaccine';
+        ? record.vaccineStatus
+        : 'No Data';
     final heightText =
-        record.height.isNotEmpty ? 'Height: ${record.height}' : 'No height';
+        record.height.isNotEmpty ? '${record.height} (kg)' : 'No height';
     final weightText =
-        record.weight.isNotEmpty ? 'Weight: ${record.weight}' : 'No weight';
+        record.weight.isNotEmpty ? '${record.weight} (cm)' : 'No weight';
 
     return Scaffold(
         appBar: AppBar(
-          title: Text('活動記錄 Detail'),
+          title: Text(S.of(context).recordDetail),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -62,14 +64,7 @@ class RecordDetailPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // show photo if available
-              if (record.photoUrl.isNotEmpty) ...[
-                // Container(
-                //   margin: const EdgeInsets.all(16),
-                //   child: record.photoUrl.isNotEmpty
-                //       ? Image.network(record.photoUrl,
-                //           width: 200, height: 200, fit: BoxFit.cover)
-                //       : const Icon(Icons.photo, size: 200),
-                // ),
+              if (record.photoUrl.isNotEmpty) ...[ 
                 Hero(
                   tag: 'recordPhoto_${record.id}',
                   child: GestureDetector(
@@ -84,33 +79,33 @@ class RecordDetailPage extends StatelessWidget {
                         ),
                       );
                     },
-                    child: Image.network(
-                      record.photoUrl,
-                      height: 200,
-                      fit: BoxFit.cover,
-                    ),
+                    child: CachedNetworkImage(imageUrl: record.photoUrl,
+                  placeholder: (context, url) => CircularProgressIndicator(),
+                  memCacheWidth: 200,
+                  errorWidget:(context, url, error) => Icon(Icons.error),
+                  fit: BoxFit.cover),
                   ),
                 )
               ],
               // date,
-              Text('日期: $dateStr',
+              Text('${S.of(context).selectDate}: $dateStr',
                   style: Theme.of(context).textTheme.titleLarge),
               SizedBox(height: 16),
               // vaccine status
-              Text('疫苗狀況: $vaccineText',
+              Text('${S.of(context).vaccineStatus}: $vaccineText',
                   style: Theme.of(context).textTheme.bodyMedium),
               // height
-              Text('身高: $heightText',
+              Text('${S.of(context).height}: $heightText',
                   style: Theme.of(context).textTheme.bodyMedium),
               // weight
-              Text('體重: $weightText',
+              Text('${S.of(context).weight}: $weightText',
                   style: Theme.of(context).textTheme.bodyMedium),
               // note
-              Text('備註: $noteDesc',
+              Text('${S.of(context).diary}: $noteDesc',
                   style: Theme.of(context).textTheme.bodyMedium),
               // tags
               if (record.tags.isNotEmpty) ...[
-                Text('標籤: ${record.tags.join(', ')}',
+                Text('${S.of(context).tag} ${record.tags.join(', ')}',
                     style: Theme.of(context).textTheme.bodyMedium),
               ],
               Row(
@@ -118,7 +113,7 @@ class RecordDetailPage extends StatelessWidget {
                 children: [
                   OutlinedButton.icon(
                     icon: Icon(Icons.delete),
-                    label: Text('Delete'),
+                    label: Text(S.of(context).delete),
                     onPressed: () {
                       confirmDeleteRecord(context);
                     },

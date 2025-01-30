@@ -299,6 +299,46 @@ class S {
       args: [],
     );
   }
+
+  /// `No note`
+  String get noNote {
+    return Intl.message(
+      'No note',
+      name: 'noNote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View Photo`
+  String get viewPhoto {
+    return Intl.message(
+      'View Photo',
+      name: 'viewPhoto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Record Detail`
+  String get recordDetail {
+    return Intl.message(
+      'Record Detail',
+      name: 'recordDetail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get delete {
+    return Intl.message(
+      'Delete',
+      name: 'delete',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

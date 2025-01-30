@@ -1,13 +1,13 @@
 import 'dart:io';
-import 'package:children/state/AppState.dart';
-
 import '../models/baby_record.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/storage_service.dart';
 import '../services/firestore_service.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
+import 'package:image_picker/image_picker.dart';
+
 
 class AddRecordPage extends StatefulWidget {
   const AddRecordPage({super.key});
@@ -151,7 +151,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                       decoration: InputDecoration(
                         labelText: S.of(context).vaccineStatus,
                         errorMaxLines: 2,
-                        prefixIcon: const Icon(Icons.medical_services),
+                        prefixIcon: const Icon(Icons.location_city),
                       ),
                       autofillHints: const [AutofillHints.username],
                       textInputAction: TextInputAction.next,

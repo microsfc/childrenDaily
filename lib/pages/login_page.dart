@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:children/helper/button.dart';
-import 'package:children/services/auth_service.dart';
-import 'package:children/pages/home_page.dart';
 import 'package:provider/provider.dart';
+import 'package:children/helper/button.dart';
+import 'package:children/pages/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:children/widgets/error_dialog.dart';
+import 'package:children/services/auth_service.dart';
 
 const childPrimaryColor = Color(0xFF00BFA6);
 
@@ -70,6 +71,8 @@ class _AuthCardState extends State<AuthCard> {
   bool isObscure = true;
   bool confirmIsObscure = true;
 
+  final errorDialog = ErrorDialog();
+
   final GlobalKey<FormState> _formKey = GlobalKey();
   final Map<String, String> _authData = {
     'email': '',
@@ -93,80 +96,11 @@ class _AuthCardState extends State<AuthCard> {
     super.initState();
   }
 
-  void showCustomErrorDialog(BuildContext context, String errorMessage) {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevents closing by tapping outside
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          titlePadding: const EdgeInsets.all(0),
-          // Title and content together:
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // A colored container for a header feel
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                decoration: const BoxDecoration(
-                  color: Colors.redAccent,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16.0),
-                    topRight: Radius.circular(16.0),
-                  ),
-                ),
-                child: const Icon(
-                  Icons.error_outline,
-                  color: Colors.white,
-                  size: 48,
-                ),
-              ),
-              // Spacing after the icon
-              const SizedBox(height: 16.0),
-            ],
-          ),
-          content: Text(
-            errorMessage,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16.0),
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              icon: const Icon(Icons.close),
-              label: const Text('DISMISS'),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-            ),
-            const SizedBox(width: 8.0),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              icon: const Icon(Icons.refresh),
-              label: const Text('RETRY'),
-              onPressed: () {
-                // TODO: Add your retry logic here
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void _resetTextfields() {
+  //   _emailController.clear();
+  //   _passwordController.clear();
+  // }
+
 
   void _resetTextfields() {
     _emailController.clear();
@@ -181,23 +115,20 @@ class _AuthCardState extends State<AuthCard> {
     if (user != null) {
       Navigator.of(context).pushNamed(HomePage.routeName);
     } else {
-      showCustomErrorDialog(context, 'Sign up failed');
+      if (!mounted) return;
+      errorDialog.showErrorDialog(context, 'Sign up with Email and Passowrd failed');
     }
   }
 
   void _signInWithGoogle() async {
     final authService = Provider.of<AuthService>(context, listen: false);
-    try {
-      final User? user = await authService.signInWithGoogle();
-      if (!mounted) return;
-      if (user != null) {
+    final User? user = await authService.signInWithGoogle();
+    if (!mounted) return;
+    if (user != null) {
         Navigator.of(context).pushNamed(HomePage.routeName);
-      } else {
-        showCustomErrorDialog(context, 'Sign in with Google failed');
-      }
-    } catch (e) {
-      showCustomErrorDialog(
-          context, 'Sign in with Google failed = ${e.toString()}');
+    } else {
+      if (!mounted) return;
+      errorDialog.showErrorDialog(context, 'Sign in with Google failed');
     }
   }
 
@@ -220,11 +151,13 @@ class _AuthCardState extends State<AuthCard> {
         if (value != null) {
           Navigator.of(context).pushNamed(HomePage.routeName);
         } else {
-          showCustomErrorDialog(context, 'Login failed');
+          if (!mounted) return;
+          errorDialog.showErrorDialog(context, 'Login failed');
         }
       });
     } catch (e) {
-      showCustomErrorDialog(context, 'Login failed');
+      if (!mounted) return;
+      errorDialog.showErrorDialog(context, 'Login failed = ${e.toString()}');
     }
 
     print(_authData);

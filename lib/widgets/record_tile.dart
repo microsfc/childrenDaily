@@ -1,7 +1,9 @@
-import 'package:children/state/AppState.dart';
-
 import '../models/baby_record.dart';
 import 'package:flutter/material.dart';
+import 'package:children/state/AppState.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+
 
 class RecordTile extends StatefulWidget {
   final BabyRecord record;
@@ -37,9 +39,13 @@ class _RecordTileState extends State<RecordTile> {
         elevation: 12.0,
         child: ListTile(
           leading: widget.record.photoUrl.isNotEmpty
-              ? Image.network(widget.record.photoUrl,
-                  width: 50, height: 50, fit: BoxFit.cover)
-              : const Icon(Icons.photo),
+              ?
+              CachedNetworkImage(imageUrl: widget.record.photoUrl,
+                  placeholder: (context, url) => CircularProgressIndicator(),
+                  memCacheWidth: 200,
+                  errorWidget:(context, url, error) => Icon(Icons.error),
+                  fit: BoxFit.cover)
+               : const Icon(Icons.photo),
           title: Text('$dateStr\n$vaccineText'),
           subtitle: Text('$noteDesc\n$heightText $weightText'),
           trailing: widget.record.tags.isNotEmpty

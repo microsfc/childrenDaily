@@ -75,6 +75,8 @@ MERGED from [:firebase_core] /Users/microsfc/Documents/git/childrenDaily/build/f
 MERGED from [:image_picker_android] /Users/microsfc/Documents/git/childrenDaily/build/image_picker_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-34:12
 MERGED from [:flutter_plugin_android_lifecycle] /Users/microsfc/Documents/git/childrenDaily/build/flutter_plugin_android_lifecycle/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [:google_sign_in_android] /Users/microsfc/Documents/git/childrenDaily/build/google_sign_in_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-9:12
+MERGED from [:path_provider_android] /Users/microsfc/Documents/git/childrenDaily/build/path_provider_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
+MERGED from [:sqflite_android] /Users/microsfc/Documents/git/childrenDaily/build/sqflite_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.firebase:firebase-auth:23.1.0] /Users/microsfc/.gradle/caches/transforms-3/c09c3099a3721c0c49d8dd96e1550736/transformed/jetified-firebase-auth-23.1.0/AndroidManifest.xml:17:1-75:12
 MERGED from [com.google.firebase:firebase-firestore:25.1.1] /Users/microsfc/.gradle/caches/transforms-3/a1f26dab07b22eb69295acda9946574b/transformed/jetified-firebase-firestore-25.1.1/AndroidManifest.xml:2:1-26:12
 MERGED from [com.google.firebase:firebase-storage:21.0.1] /Users/microsfc/.gradle/caches/transforms-3/cdba0857b092b442bbd48e83adc4deef/transformed/jetified-firebase-storage-21.0.1/AndroidManifest.xml:15:1-39:12
@@ -179,6 +181,10 @@ MERGED from [:flutter_plugin_android_lifecycle] /Users/microsfc/Documents/git/ch
 MERGED from [:flutter_plugin_android_lifecycle] /Users/microsfc/Documents/git/childrenDaily/build/flutter_plugin_android_lifecycle/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:google_sign_in_android] /Users/microsfc/Documents/git/childrenDaily/build/google_sign_in_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:google_sign_in_android] /Users/microsfc/Documents/git/childrenDaily/build/google_sign_in_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:path_provider_android] /Users/microsfc/Documents/git/childrenDaily/build/path_provider_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:path_provider_android] /Users/microsfc/Documents/git/childrenDaily/build/path_provider_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:sqflite_android] /Users/microsfc/Documents/git/childrenDaily/build/sqflite_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:sqflite_android] /Users/microsfc/Documents/git/childrenDaily/build/sqflite_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [com.google.firebase:firebase-auth:23.1.0] /Users/microsfc/.gradle/caches/transforms-3/c09c3099a3721c0c49d8dd96e1550736/transformed/jetified-firebase-auth-23.1.0/AndroidManifest.xml:21:5-23:151
 MERGED from [com.google.firebase:firebase-auth:23.1.0] /Users/microsfc/.gradle/caches/transforms-3/c09c3099a3721c0c49d8dd96e1550736/transformed/jetified-firebase-auth-23.1.0/AndroidManifest.xml:21:5-23:151
 MERGED from [com.google.firebase:firebase-firestore:25.1.1] /Users/microsfc/.gradle/caches/transforms-3/a1f26dab07b22eb69295acda9946574b/transformed/jetified-firebase-firestore-25.1.1/AndroidManifest.xml:6:5-44

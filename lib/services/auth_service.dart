@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:children/widgets/error_dialog.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -25,11 +26,12 @@ class AuthService {
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       print('Sign in error: ${e.code}');
-      // throw Exception('Error signing in with Google');
+      // ErrorDialog(errorMessage: 'Error signing in with Google');
     } catch (e) {
+      // ErrorDialog(errorMessage: 'Error signing in with Google = ${e.toString()}');
       print('Sign in error: $e');
-      // throw Exception('Error signing in with Google');
     }
+    return null;
   }
 
   Future<User?> signInWithEmailAndPassword(
@@ -40,7 +42,8 @@ class AuthService {
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       print('Sign in error: ${e.code}');
-      throw Exception('Error signing in with email and password');
+      // ErrorDialog(errorMessage: 'Error signing in with email and password');
+      return null;
     }
   }
 
@@ -51,14 +54,14 @@ class AuthService {
           .createUserWithEmailAndPassword(email: email, password: password);
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        throw Exception('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        throw Exception('The account already exists for that email.');
-      } else {
-        print('Sign up error: ${e.code}');
-        throw Exception('Error signing up with email and password');
-      }
+      // if (e.code == 'weak-password') {
+      //   ErrorDialog(errorMessage: 'The password provided is too weak.');
+      // } else if (e.code == 'email-already-in-use') {
+      //   ErrorDialog(errorMessage: 'The account already exists for that email.');
+      // } else {
+      //   ErrorDialog(errorMessage: 'Error signing up with email and password');
+      // }
+      return null;
     }
   }
 

@@ -23,5 +23,9 @@
     "pleaseInputRecord": "Please input record",
     "tagSeparator": "Tag (separated by comma)",
     "save": "Save",
-    "babyGrowthTracker": "Baby Growth Tracker"
+    "babyGrowthTracker": "Baby Growth Tracker",
+    "noNote": "No note",
+    "viewPhoto": "View Photo",
+    "recordDetail": "Record Detail",
+    "delete": "Delete"
 }

@@ -23,5 +23,9 @@
     "pleaseInputRecord": "請輸入紀錄",
     "tagSeparator": "標籤 (以逗號分隔)",
     "save": "儲存",
-    "babyGrowthTracker": "寶寶成長紀錄"
+    "babyGrowthTracker": "寶寶成長紀錄",
+    "noNote": "無記錄",
+    "viewPhoto": "查看照片",
+    "recordDetail": "紀錄詳情",
+    "delete": "刪除"
 }

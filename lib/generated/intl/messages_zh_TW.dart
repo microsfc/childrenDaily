@@ -29,16 +29,19 @@ class MessageLookup extends MessageLookupByLibrary {
         "cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "confirm": MessageLookupByLibrary.simpleMessage("確認"),
         "date": MessageLookupByLibrary.simpleMessage("日期"),
+        "delete": MessageLookupByLibrary.simpleMessage("刪除"),
         "deleteSuccess": MessageLookupByLibrary.simpleMessage("成功刪除記錄!"),
         "diary": MessageLookupByLibrary.simpleMessage("日記"),
         "errorOccurred": MessageLookupByLibrary.simpleMessage("發生錯誤"),
         "height": MessageLookupByLibrary.simpleMessage("身高"),
+        "noNote": MessageLookupByLibrary.simpleMessage("無記錄"),
         "noRecordFound": MessageLookupByLibrary.simpleMessage("目前沒有任何記錄"),
         "pleaseInputRecord": MessageLookupByLibrary.simpleMessage("請輸入紀錄"),
         "pleaseSelectDate": MessageLookupByLibrary.simpleMessage("請選擇日期"),
         "pleaseSelectDateAndInputRecord":
             MessageLookupByLibrary.simpleMessage("請選擇日期並輸入紀錄"),
         "pleaseSelectPhoto": MessageLookupByLibrary.simpleMessage("請選擇照片"),
+        "recordDetail": MessageLookupByLibrary.simpleMessage("紀錄詳情"),
         "save": MessageLookupByLibrary.simpleMessage("儲存"),
         "searchKeyword": MessageLookupByLibrary.simpleMessage("搜尋關鍵字"),
         "selectDate": MessageLookupByLibrary.simpleMessage("選擇日期"),
@@ -47,6 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "tagSeparator": MessageLookupByLibrary.simpleMessage("標籤 (以逗號分隔)"),
         "timeline": MessageLookupByLibrary.simpleMessage("時間軸"),
         "vaccineStatus": MessageLookupByLibrary.simpleMessage("備註"),
+        "viewPhoto": MessageLookupByLibrary.simpleMessage("查看照片"),
         "weight": MessageLookupByLibrary.simpleMessage("體重")
       };
 }

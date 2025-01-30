@@ -63,4 +63,32 @@ class FirestoreService {
           .toList();
     });
   }
+
+  // batch to fetch records
+  Future<QuerySnapshot> getBabyRecordsBatch(
+      {required int limit, DocumentSnapshot? lastDocument}) async {
+    Query query = _babyRecordsCollection
+        .orderBy('date', descending: true);
+
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument);
+    }
+
+    final snapshot = await query
+        .limit(limit)
+        .get();
+    return snapshot;
+  }
+  // batch with keyword search records
+  Future<QuerySnapshot> getBabyRecordsKeyWordBatch(
+      {required int limit, DocumentSnapshot? lastDocument, required keyword}) async {
+    Query query = _babyRecordsCollection
+        .orderBy('date', descending: true)
+        .where('tags', arrayContains: keyword);
+
+    final snapshot = await query
+        .limit(limit)
+        .get();
+    return snapshot;
+  }
 }
