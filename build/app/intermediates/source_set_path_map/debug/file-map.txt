@@ -39,3 +39,5 @@ com.example.children.app-packaged_res-37 /Users/microsfc/Documents/git/childrenD
 com.example.children.app-packaged_res-38 /Users/microsfc/Documents/git/childrenDaily/build/flutter_plugin_android_lifecycle/intermediates/packaged_res/debug
 com.example.children.app-packaged_res-39 /Users/microsfc/Documents/git/childrenDaily/build/google_sign_in_android/intermediates/packaged_res/debug
 com.example.children.app-packaged_res-40 /Users/microsfc/Documents/git/childrenDaily/build/image_picker_android/intermediates/packaged_res/debug
+com.example.children.app-packaged_res-41 /Users/microsfc/Documents/git/childrenDaily/build/path_provider_android/intermediates/packaged_res/debug
+com.example.children.app-packaged_res-42 /Users/microsfc/Documents/git/childrenDaily/build/sqflite_android/intermediates/packaged_res/debug

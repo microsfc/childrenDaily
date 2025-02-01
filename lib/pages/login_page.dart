@@ -41,7 +41,7 @@ class LoginPage extends StatelessWidget {
                     height: 0.15 * deviceSize.height,
                   ),
                   const Image(
-                      image: AssetImage('assets/icons/login.png'), width: 85),
+                      image: AssetImage('assets/images/milk-bottle.png'), width: 85),
                   Container(
                       margin: const EdgeInsets.only(top: 20),
                       child: Text("Login",
