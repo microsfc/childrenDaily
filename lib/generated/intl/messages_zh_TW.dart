@@ -32,6 +32,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "delete": MessageLookupByLibrary.simpleMessage("刪除"),
         "deleteSuccess": MessageLookupByLibrary.simpleMessage("成功刪除記錄!"),
         "diary": MessageLookupByLibrary.simpleMessage("日記"),
+        "edit": MessageLookupByLibrary.simpleMessage("編輯"),
+        "editBabyRecord": MessageLookupByLibrary.simpleMessage("編輯寶寶紀錄"),
         "errorOccurred": MessageLookupByLibrary.simpleMessage("發生錯誤"),
         "height": MessageLookupByLibrary.simpleMessage("身高"),
         "noNote": MessageLookupByLibrary.simpleMessage("無記錄"),

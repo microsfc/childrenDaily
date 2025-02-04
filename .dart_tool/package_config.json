@@ -704,6 +704,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "timeline_tile",
+      "rootUri": "file:///Users/microsfc/.pub-cache/hosted/pub.dev/timeline_tile-2.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "transparent_image",
       "rootUri": "file:///Users/microsfc/.pub-cache/hosted/pub.dev/transparent_image-2.0.1",
       "packageUri": "lib/",
@@ -788,10 +794,10 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-02-01T06:51:17.509339Z",
+  "generated": "2025-02-03T08:13:59.863963Z",
   "generator": "pub",
   "generatorVersion": "3.6.1",
   "flutterRoot": "file:///Users/microsfc/development/flutter",
-  "flutterVersion": "3.27.2",
+  "flutterVersion": "3.27.3",
   "pubCache": "file:///Users/microsfc/.pub-cache"
 }

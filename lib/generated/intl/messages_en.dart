@@ -37,6 +37,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "deleteSuccess":
             MessageLookupByLibrary.simpleMessage("Delete successfully!"),
         "diary": MessageLookupByLibrary.simpleMessage("Diary"),
+        "edit": MessageLookupByLibrary.simpleMessage("Edit"),
+        "editBabyRecord":
+            MessageLookupByLibrary.simpleMessage("Edit Baby Record"),
         "errorOccurred": MessageLookupByLibrary.simpleMessage("Error occurred"),
         "height": MessageLookupByLibrary.simpleMessage("Height"),
         "noNote": MessageLookupByLibrary.simpleMessage("No note"),

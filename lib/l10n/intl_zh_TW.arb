@@ -27,5 +27,7 @@
     "noNote": "無記錄",
     "viewPhoto": "查看照片",
     "recordDetail": "紀錄詳情",
-    "delete": "刪除"
+    "delete": "刪除",
+    "edit": "編輯",
+    "editBabyRecord": "編輯寶寶紀錄"
 }

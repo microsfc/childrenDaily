@@ -109,8 +109,18 @@ class RecordDetailPage extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium),
               ],
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  OutlinedButton.icon(
+                    icon: Icon(Icons.edit),
+                    label: Text(S.of(context).edit),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(
+                        '/add_record',
+                        arguments: record,
+                      );
+                    },
+                  ),
                   OutlinedButton.icon(
                     icon: Icon(Icons.delete),
                     label: Text(S.of(context).delete),

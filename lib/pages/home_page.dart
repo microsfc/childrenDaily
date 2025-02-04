@@ -1,9 +1,11 @@
 import './timeline_page.dart';
+import './calendar_page.dart';
 import './add_record_page.dart';
+import '../generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
-import './calendar_page.dart';
-import '../generated/l10n.dart';
+import 'package:children/models/baby_record.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,7 +18,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-
   final _screenList = [
     TimelinePage(),
     const AddRecordPage(),

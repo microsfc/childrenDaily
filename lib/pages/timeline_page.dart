@@ -6,10 +6,9 @@ import 'package:provider/provider.dart';
 import '../services/firestore_service.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
+import 'package:timeline_tile/timeline_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
-
-
 
 class TimelinePage extends StatefulWidget {
   TimelinePage({super.key});
@@ -26,7 +25,6 @@ class _TimelinePageState extends State<TimelinePage> {
   late final List<BabyRecord> _records = [];
   /// Firestore pagination variables
   DocumentSnapshot ?_lastDocument;
-  bool _isLoadingMore = false;
   bool _hasMoreData = true;
   final ScrollController _scrollController = ScrollController();
   // 是否處於「搜尋模式」
@@ -39,17 +37,13 @@ class _TimelinePageState extends State<TimelinePage> {
   /// Fetch the first (or next) batch of records
   Future<void> _fetchRecords() async {
     // // If already loading or no more data, just return
-    // if (_isLoadingMore || !_hasMoreData) {
-    //   return;
-    // }
+    if (!_hasMoreData) {
+      return;
+    }
     
     if (!searchKeyword.isEmpty) {
       _records.clear();
     }
-
-    setState(() {
-      _isLoadingMore = true;
-    });
 
     // Base query: ordering by a field you want to sort by (e.g. timestamp)
   
@@ -83,9 +77,6 @@ class _TimelinePageState extends State<TimelinePage> {
         _hasMoreData = false;
       });
     }
-    setState(() {
-      _isLoadingMore = false;
-    });
   }
 
   @override
@@ -114,7 +105,7 @@ class _TimelinePageState extends State<TimelinePage> {
     final firestoreService =
         Provider.of<FirestoreService>(context, listen: false);
     return searchKeyword.isEmpty
-        ? await firestoreService.getBabyRecords()
+        ? firestoreService.getBabyRecords()
         : await firestoreService.getTagsStartingWith(searchKeyword);
   }
 
@@ -236,12 +227,50 @@ class _TimelinePageState extends State<TimelinePage> {
                 controller: _scrollController,
                 itemCount: _records.length + 1,
                 itemBuilder: (context, index) {
+                  // final isFirst = index == 0 ? true : false;
+                  // final isLast = index == _records.length -1 ? true : false;
+                  
                   // If the user has scrolled to the bottom and we’re still loading, show a loader
                   if (index == _records.length) {
                      return _hasMoreData
                         ? const Center(child: CircularProgressIndicator())
                         : SizedBox.shrink();
                   }
+
+                  // final record = _records[index];
+
+                  // return TimelineTile(
+                  //   // alignment: determines where the line is drawn.
+                  //   // Use TimelineAlign.start for a left-aligned timeline, or
+                  //   // TimelineAlign.center if you want the line in the center, etc.
+                  //   alignment: TimelineAlign.start,
+                  //   // Indicate if it's the first or last tile
+                  //   isFirst: isFirst,
+                  //   isLast: isLast,
+                  //   // The main axis (vertical in this example).
+                  //   // If you want a horizontal timeline, set 'axis: TimelineAxis.horizontal'
+                  //   axis: TimelineAxis.vertical,
+                  //   // The indicator (dot) style
+                  //   indicatorStyle: const IndicatorStyle(
+                  //     width: 20,
+                  //     color: Colors.purple,
+                  //     padding: EdgeInsets.all(16),
+                  //     indicatorXY: 0.5, //0.5 is center vertically
+                  //   ),
+                  //   afterLineStyle: const LineStyle(
+                  //     color: Colors.purple,
+                  //     thickness: 2,
+                  //   ),
+                  //   beforeLineStyle: const LineStyle(
+                  //     color: Colors.purple,
+                  //     thickness: 2,
+                  //   ),
+                  //   // The 'startChild' widget is placed on the left side
+                  //   // for a vertical timeline (because alignment is 'start').
+                  //   // The 'endChild' is placed on the right side. 
+                  //   // If using TimelineAlign.start, typically only one side is used.
+                  //   endChild: RecordTile(key: ValueKey(record.id), record: record),
+                  // );
 
                   final record = _records[index];
                   return RecordTile(key: ValueKey(record.id), record: record);

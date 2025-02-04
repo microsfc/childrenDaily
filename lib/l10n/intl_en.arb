@@ -27,5 +27,7 @@
     "noNote": "No note",
     "viewPhoto": "View Photo",
     "recordDetail": "Record Detail",
-    "delete": "Delete"
+    "delete": "Delete",
+    "edit": "Edit",
+    "editBabyRecord": "Edit Baby Record"
 }

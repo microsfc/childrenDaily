@@ -174,12 +174,12 @@ class _AuthCardState extends State<AuthCard> {
       ),
       elevation: 8.0,
       child: Container(
-        height: 450,
+        height: 500,
         constraints: BoxConstraints(
-          minHeight: 450,
+          minHeight: 500,
         ),
         width: deviceSize.width * 0.75,
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -199,8 +199,19 @@ class _AuthCardState extends State<AuthCard> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
+                decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                    icon: Icon(isObscure
+                        ? Icons.visibility_off
+                        : Icons.visibility),
+                    onPressed: () {
+                      setState(() {
+                        isObscure = !isObscure;
+                      });
+                    },
+                  ),
+                  labelText: 'Password'),
+                obscureText: isObscure,
                 controller: _passwordController,
                 validator: (value) {
                   if (value!.isEmpty || value.length < 5) {
@@ -213,7 +224,7 @@ class _AuthCardState extends State<AuthCard> {
                 },
               ),
               SizedBox(
-                height: 20,
+                height: 10,
               ),
               if (_isLoading)
                 CircularProgressIndicator()

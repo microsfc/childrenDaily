@@ -8,9 +8,9 @@ import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
 import 'package:image_picker/image_picker.dart';
 
-
 class AddRecordPage extends StatefulWidget {
-  const AddRecordPage({super.key});
+  final BabyRecord? record;
+  const AddRecordPage({super.key, this.record});
   static const routeName = '/add_record';
 
   @override
@@ -18,9 +18,11 @@ class AddRecordPage extends StatefulWidget {
 }
 
 class _AddRecordPageState extends State<AddRecordPage> {
+  
   final _formKey = GlobalKey<FormState>();
   DateTime? _selectedDay;
   File? _selectedImage;
+  String title = '';
   final _noteController = TextEditingController();
   final _tagsController = TextEditingController();
   final _vaccController = TextEditingController();
@@ -99,9 +101,20 @@ class _AddRecordPageState extends State<AddRecordPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.record != null) {
+      _selectedDay = widget.record?.date;
+      _vaccController.text = widget.record?.vaccineStatus ?? '';
+      _weightController.text = widget.record?.weight ?? '';
+      _heightController.text = widget.record?.height ?? '';
+      _noteController.text = widget.record?.note ?? '';
+      _tagsController.text = widget.record?.tags.join(', ') ?? '';
+      title = S.of(context).editBabyRecord;
+    } else {
+      title = S.of(context).addBabyRecord;
+    } 
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).addBabyRecord),
+        title: Text(title),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -117,7 +130,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     Row(children: [
                       Text(
                         _selectedDay == null
-                            ? S.of(context).addBabyRecord
+                            ? title
                             : '${S.of(context).date}: ${_selectedDay!.year}/${_selectedDay!.month}/${_selectedDay!.day}',
                       ),
                       const SizedBox(width: 16.0),
@@ -196,6 +209,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                         return null;
                       },
                     ),
+                    SizedBox(height: 25.0),
                     // Tag
                     TextFormField(
                       controller: _tagsController,
