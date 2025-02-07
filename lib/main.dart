@@ -15,8 +15,8 @@ import 'package:children/generated/l10n.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:children/services/auth_service.dart';
 import 'firebase_options.dart'; // FlutterFire CLI 產生
+import 'package:children/pages/height_weight_chart.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,6 +81,14 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                   builder: (context) =>
                       DailyRecordsPage(date: date, records: records));
+            case GrowthChartPage.routeName:
+              final rangeInYears = settings.arguments as int;
+              return MaterialPageRoute(
+                  builder: (context) =>
+                      GrowthChartPage(rangeInYears: rangeInYears));
+            case '/':
+              return MaterialPageRoute(builder: (context) => LoginPage());
+
             default:
               return null;
           }

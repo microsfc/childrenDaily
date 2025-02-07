@@ -174,9 +174,9 @@ class _AuthCardState extends State<AuthCard> {
       ),
       elevation: 8.0,
       child: Container(
-        height: 500,
+        height: 450,
         constraints: BoxConstraints(
-          minHeight: 500,
+          minHeight: 450,
         ),
         width: deviceSize.width * 0.75,
         padding: const EdgeInsets.all(12.0),

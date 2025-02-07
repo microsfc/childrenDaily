@@ -25,7 +25,7 @@ class _TimelinePageState extends State<TimelinePage> {
   late final List<BabyRecord> _records = [];
   /// Firestore pagination variables
   DocumentSnapshot ?_lastDocument;
-  bool _hasMoreData = true;
+  bool _hasMoreData = false;
   final ScrollController _scrollController = ScrollController();
   // 是否處於「搜尋模式」
   bool isSearching = false;
@@ -36,10 +36,6 @@ class _TimelinePageState extends State<TimelinePage> {
 
   /// Fetch the first (or next) batch of records
   Future<void> _fetchRecords() async {
-    // // If already loading or no more data, just return
-    if (!_hasMoreData) {
-      return;
-    }
     
     if (!searchKeyword.isEmpty) {
       _records.clear();
@@ -69,6 +65,7 @@ class _TimelinePageState extends State<TimelinePage> {
           .map((doc) => BabyRecord.fromMap(doc.data() as Map<String, dynamic>, doc.id))
           .toList();
       setState(() {
+        _hasMoreData = true;
         _records.addAll(fetchRecords);
       });
     } else {
@@ -82,6 +79,7 @@ class _TimelinePageState extends State<TimelinePage> {
   @override
   void initState() {
     super.initState();
+    _fetchRecords();
     _fetchRecords();
     _scrollController.addListener(_onScroll);
   }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import '../models/baby_record.dart';
+import '../models/measurement.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/storage_service.dart';
@@ -23,6 +24,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
   DateTime? _selectedDay;
   File? _selectedImage;
   String title = '';
+  String updateId = '';
   final _noteController = TextEditingController();
   final _tagsController = TextEditingController();
   final _vaccController = TextEditingController();
@@ -85,6 +87,13 @@ class _AddRecordPageState extends State<AddRecordPage> {
             tags: tagsLst);
         // 將紀錄存入 Firestore
         await firestoreService.addOrUpdateRecord(babyRecord);
+        final heightWeightMes = Measurement(
+            id: updateId,
+            date: _selectedDay!,
+            height: double.tryParse(_heightController.text) ?? 0.0,
+            weight: double.tryParse(_weightController.text) ?? 0.0);
+        // 將身高體重存入 Firestore
+        await firestoreService.addOrUpdateHeightWeight(heightWeightMes);
         appState.setIsLoading(false);
         nav.pop();
       } catch (e) {
@@ -102,6 +111,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
   @override
   Widget build(BuildContext context) {
     if (widget.record != null) {
+      updateId = widget.record!.id;
       _selectedDay = widget.record?.date;
       _vaccController.text = widget.record?.vaccineStatus ?? '';
       _weightController.text = widget.record?.weight ?? '';

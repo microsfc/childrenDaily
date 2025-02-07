@@ -2,10 +2,9 @@ import './timeline_page.dart';
 import './calendar_page.dart';
 import './add_record_page.dart';
 import '../generated/l10n.dart';
+import './height_weight_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
-import 'package:children/models/baby_record.dart';
-
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,10 +17,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+
   final _screenList = [
     TimelinePage(),
     const AddRecordPage(),
     const CalendarPage(),
+    const GrowthChartPage(rangeInYears: 1),
   ];
 
   void _onItemTapped(int index) {
@@ -40,7 +41,7 @@ class _HomePageState extends State<HomePage> {
             //   secondaryAnimation: secondaryAnimation,
             //   child: child,
             // ),
-            SharedAxisTransition(
+          SharedAxisTransition(
           child: child,
           animation: animation,
           secondaryAnimation: secondaryAnimation,
@@ -63,6 +64,10 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(
             icon: const Icon(Icons.calendar_month),
             label: "Calendar",
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.show_chart),
+            label: "Growth Chart",
           )
         ],
         onDestinationSelected: _onItemTapped,

@@ -1,9 +1,12 @@
 import '../models/baby_record.dart';
+import '../models/measurement.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
   final CollectionReference _babyRecordsCollection =
       FirebaseFirestore.instance.collection('baby_records');
+  final CollectionReference _heightWeightCollection =
+      FirebaseFirestore.instance.collection('height_weight');
 
   // 新增或更新 BabyRecord
   Future<void> addOrUpdateRecord(BabyRecord babyRecord) async {
@@ -15,6 +18,20 @@ class FirestoreService {
       await _babyRecordsCollection
           .doc(babyRecord.id)
           .update(babyRecord.toMap());
+    }
+  }
+
+  // 新增或更新身高體重
+  Future<void> addOrUpdateHeightWeight(Measurement heightWeightMes) async {
+
+    if (heightWeightMes.id.isEmpty) {
+      // 新增
+      await _heightWeightCollection.add(heightWeightMes.toMap()); 
+    } else {
+      // 更新
+      await _heightWeightCollection
+          .doc(heightWeightMes.id)
+          .update(heightWeightMes.toMap());
     }
   }
 
@@ -90,5 +107,17 @@ class FirestoreService {
         .limit(limit)
         .get();
     return snapshot;
+  }
+
+  // 取得所有 Measurement (依日期排序)
+  Future<List<Measurement>> getHeightWeight() async {
+    final snapshot = await _heightWeightCollection
+        .orderBy('date', descending: true)
+        .get();
+  
+    return snapshot.docs
+        .map((doc) =>
+            Measurement.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
   }
 }
