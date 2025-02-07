@@ -43,3 +43,61 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+# Flutter
+# 參考自 https://github.com/flutter/flutter/blob/master/.gitignore
+
+# Dart Packages
+**/.dart_tool/
+**/.packages
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.pub/
+**/.idea/
+**/generated_plugin_registrant.dart
+
+# Flutter build output
+build/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+android/app/build/
+android/.gradle/
+android/.idea/
+macos/Flutter/ephemeral/
+web/.dart_tool/
+web/build/
+
+# Xcode
+ios/Pods/
+ios/.symlinks/
+ios/.generated/
+ios/.dart_tool/
+ios/.swiftpm/
+ios/Runner.xcworkspace/
+ios/xcuserdata/
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+*.DS_Store
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~ 
