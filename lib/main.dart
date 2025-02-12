@@ -18,6 +18,8 @@ import 'firebase_options.dart'; // FlutterFire CLI 產生
 import 'package:children/pages/height_weight_chart.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -55,6 +57,7 @@ class MyApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
         ],
         home: LoginPage(),
+        navigatorObservers: [routeObserver],
         onGenerateRoute: (settings) {
           switch (settings.name) {
             case LoginPage.routeName:

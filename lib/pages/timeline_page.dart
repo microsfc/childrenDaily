@@ -1,14 +1,15 @@
 import './add_record_page.dart';
 import '../models/baby_record.dart';
+import 'package:children/main.dart';
 import '../widgets/record_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/firestore_service.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
-import 'package:timeline_tile/timeline_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
+// import 'package:timeline_tile/timeline_tile.dart';
 
 class TimelinePage extends StatefulWidget {
   TimelinePage({super.key});
@@ -20,7 +21,7 @@ class TimelinePage extends StatefulWidget {
   State<TimelinePage> createState() => _TimelinePageState();
 }
 
-class _TimelinePageState extends State<TimelinePage> {
+class _TimelinePageState extends State<TimelinePage> with RouteAware {
   // keep track of records
   late final List<BabyRecord> _records = [];
   /// Firestore pagination variables
@@ -29,6 +30,7 @@ class _TimelinePageState extends State<TimelinePage> {
   final ScrollController _scrollController = ScrollController();
   // 是否處於「搜尋模式」
   bool isSearching = false;
+  bool isNotTimeLinePage = false;
   // 搜尋關鍵字
   String searchKeyword = '';
   // 搜尋框的控制器
@@ -37,8 +39,10 @@ class _TimelinePageState extends State<TimelinePage> {
   /// Fetch the first (or next) batch of records
   Future<void> _fetchRecords() async {
     
-    if (!searchKeyword.isEmpty) {
-      _records.clear();
+    if (searchKeyword.isNotEmpty) {
+      setState(() {
+        _records.clear();
+      });
     }
 
     // Base query: ordering by a field you want to sort by (e.g. timestamp)
@@ -65,12 +69,17 @@ class _TimelinePageState extends State<TimelinePage> {
           .map((doc) => BabyRecord.fromMap(doc.data() as Map<String, dynamic>, doc.id))
           .toList();
       setState(() {
-        _hasMoreData = true;
+        if (fetchRecords.length < 5) {
+          _hasMoreData = false;
+        } else {
+          _hasMoreData = true;
+        }
         _records.addAll(fetchRecords);
       });
     } else {
       // no more data
       setState(() {
+        // _lastDocument = null;
         _hasMoreData = false;
       });
     }
@@ -79,7 +88,7 @@ class _TimelinePageState extends State<TimelinePage> {
   @override
   void initState() {
     super.initState();
-    _fetchRecords();
+    _lastDocument = null;
     _fetchRecords();
     _scrollController.addListener(_onScroll);
   }
@@ -94,10 +103,38 @@ class _TimelinePageState extends State<TimelinePage> {
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
+
+  // Called when we come back to this route from another route
+  @override
+  void didPopNext() {
+    super.didPopNext();
+    final appState = AppState.of(context);
+    setState(() {
+      appState.selectedRecordIDs.clear();
+      _records.clear();
+      _lastDocument = null;
+    });
+    _fetchRecords();
+  }
+
+  // Called when this route has appeared and is ready
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    // Subscribe to RouteObserver
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+      // isNotTimeLinePage = route.settings.name != TimelinePage.routeName;
+    }
+    
+  }
+
 
   Future<Stream<List<BabyRecord>>> getFilterItems() async {
     final firestoreService =
@@ -125,7 +162,12 @@ class _TimelinePageState extends State<TimelinePage> {
               onPressed: () async {
                 await firestoreService
                     .deleteMultipleRecords(appState.selectedRecordIDs);
-                appState.selectedRecordIDs.clear();
+                setState(() {
+                  appState.selectedRecordIDs.clear();
+                  _records.clear();
+                  _lastDocument = null;
+                });
+                _fetchRecords();
                 nav.pop();
                 messenger.showSnackBar(
                   SnackBar(content: Text(S.of(context).deleteSuccess)),
@@ -146,6 +188,13 @@ class _TimelinePageState extends State<TimelinePage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(barTitle),
+          automaticallyImplyLeading: false,
+          leading: isNotTimeLinePage ? IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ) : null,
           actions: [
             Consumer<AppState>(
               builder: (context, appState, child) {
