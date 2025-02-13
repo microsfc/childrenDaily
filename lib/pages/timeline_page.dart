@@ -30,7 +30,6 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
   final ScrollController _scrollController = ScrollController();
   // 是否處於「搜尋模式」
   bool isSearching = false;
-  bool isNotTimeLinePage = false;
   // 搜尋關鍵字
   String searchKeyword = '';
   // 搜尋框的控制器
@@ -130,7 +129,6 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
     // Subscribe to RouteObserver
     if (route is PageRoute) {
       routeObserver.subscribe(this, route);
-      // isNotTimeLinePage = route.settings.name != TimelinePage.routeName;
     }
     
   }
@@ -188,13 +186,7 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
     return Scaffold(
         appBar: AppBar(
           title: Text(barTitle),
-          automaticallyImplyLeading: false,
-          leading: isNotTimeLinePage ? IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ) : null,
+          automaticallyImplyLeading: false,          
           actions: [
             Consumer<AppState>(
               builder: (context, appState, child) {

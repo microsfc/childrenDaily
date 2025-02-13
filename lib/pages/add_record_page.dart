@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:developer';
 import '../models/baby_record.dart';
 import '../models/measurement.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,9 @@ import '../services/storage_service.dart';
 import '../services/firestore_service.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
+import 'package:children/pages/home_page.dart';
 import 'package:image_picker/image_picker.dart';
+
 
 class AddRecordPage extends StatefulWidget {
   final BabyRecord? record;
@@ -126,6 +127,12 @@ class _AddRecordPageState extends State<AddRecordPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () {
+            Navigator.of(context).pushNamed(HomePage.routeName);
+          },
+        )
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

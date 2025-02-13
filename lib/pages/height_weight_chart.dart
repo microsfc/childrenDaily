@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+import 'package:children/pages/home_page.dart';
 import 'package:children/models/measurement.dart';
 import 'package:children/services/firestore_service.dart';
 
@@ -76,7 +77,13 @@ class _GrowthChartPageState extends State<GrowthChartPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.rangeInYears}年成長曲線 (身高)'),
+        title: Text('${widget.rangeInYears} 年成長曲線 (身高)'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () {
+            Navigator.of(context).pushNamed(HomePage.routeName);
+          },
+        )
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

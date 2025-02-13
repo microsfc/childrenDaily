@@ -3,7 +3,7 @@ import '../models/baby_record.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/firestore_service.dart';
-import 'package:children/pages/timeline_page.dart';
+import 'package:children/pages/home_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 
@@ -44,7 +44,7 @@ class _CalendarPageState extends State<CalendarPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () {
-            Navigator.of(context).pushNamed(TimelinePage.routeName);
+            Navigator.of(context).pushNamed(HomePage.routeName);
           },
         )
       ),
