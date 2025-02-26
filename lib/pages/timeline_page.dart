@@ -7,8 +7,10 @@ import 'package:provider/provider.dart';
 import '../services/firestore_service.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
+import 'package:children/pages/payment_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
+
 // import 'package:timeline_tile/timeline_tile.dart';
 
 class TimelinePage extends StatefulWidget {
@@ -195,6 +197,19 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
                     icon: const Icon(Icons.delete),
                     onPressed: () {
                       confirmDeleteRecord(context);
+                    },
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+            Consumer<AppState>(
+              builder: (context, appState, child) {
+                if (appState.selectedRecordIDs.isNotEmpty) {
+                  return IconButton(
+                    icon: const Icon(Icons.payment),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(PaymentScreen.routeName);
                     },
                   );
                 }
