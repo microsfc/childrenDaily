@@ -13,7 +13,7 @@ import 'package:stripe_platform_interface/stripe_platform_interface.dart';
 const _paymentItems = [
   pay.PaymentItem(
     label: 'Total',
-    amount: '99.99',
+    amount: '1',
     status: pay.PaymentItemStatus.final_price,
   )
 ];
@@ -129,29 +129,29 @@ class _PaymentScreenState extends State<PaymentScreen> {
       body: Padding(padding: EdgeInsets.all(16),
         child: Column(
           children: [
-            ElevatedButton(onPressed: _handleGooglePayPress, child: Text('Google Pay')),
-          //  pay.GooglePayButton(
-          // pay.GooglePayButton(
-          //   paymentConfiguration: pay.PaymentConfiguration.fromJsonString(
-          //     _paymentProfile,
-          //   ),
-          //   paymentItems: _paymentItems,
-          //   margin: const EdgeInsets.only(top: 15),
-          //   onPaymentResult: onGooglePayResult,
-          //   loadingIndicator: const Center(
-          //     child: CircularProgressIndicator(),
-          //   ),
-          //   onPressed: () async {},
-          //   childOnError: Text('Google Pay is not available in this device'),
-          //   onError: (e) {
-          //     ScaffoldMessenger.of(context).showSnackBar(
-          //       const SnackBar(
-          //         content: Text(
-          //             'There was an error while trying to perform the payment'),
-          //       ),
-          //     );
-          //   },
-          // ),
+            // ElevatedButton(onPressed: _handleGooglePayPress, child: Text('Google Pay')),
+           
+          pay.GooglePayButton(
+            paymentConfiguration: pay.PaymentConfiguration.fromJsonString(
+              _paymentProfile,
+            ),
+            paymentItems: _paymentItems,
+            margin: const EdgeInsets.only(top: 15),
+            onPaymentResult: onGooglePayResult,
+            loadingIndicator: const Center(
+              child: CircularProgressIndicator(),
+            ),
+            onPressed: () async {},
+            childOnError: Text('Google Pay is not available in this device'),
+            onError: (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                      'There was an error while trying to perform the payment'),
+                ),
+              );
+            },
+          ),
           if (stripe.Stripe.instance.isPlatformPaySupportedListenable.value)
             PlatformPayButton(
             onShippingContactSelected: (contact) async {

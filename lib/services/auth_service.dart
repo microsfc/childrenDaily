@@ -54,13 +54,13 @@ class AuthService {
           .createUserWithEmailAndPassword(email: email, password: password);
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      // if (e.code == 'weak-password') {
-      //   ErrorDialog(errorMessage: 'The password provided is too weak.');
-      // } else if (e.code == 'email-already-in-use') {
-      //   ErrorDialog(errorMessage: 'The account already exists for that email.');
-      // } else {
-      //   ErrorDialog(errorMessage: 'Error signing up with email and password');
-      // }
+      if (e.code == 'weak-password') {
+        ErrorDialog(errorMessage: 'The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        ErrorDialog(errorMessage: 'The account already exists for that email.');
+      } else {
+        ErrorDialog(errorMessage: 'Error signing up with email and password');
+      }
       return null;
     }
   }

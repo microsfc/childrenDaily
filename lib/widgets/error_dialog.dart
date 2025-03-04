@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ErrorDialog {
 
-  const ErrorDialog();
+  const ErrorDialog({required String errorMessage});
 
   void showErrorDialog(BuildContext context, String errorMessage) {
     showDialog(

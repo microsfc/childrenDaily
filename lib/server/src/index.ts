@@ -354,7 +354,7 @@ app.post('/create-setup-intent', async (req, res) => {
   const payPalIntentPayload = {
     return_url: 'https://example.com/setup/complete',
     payment_method_options: { paypal: { currency: 'eur' } },
-    payment_method_data: { type: 'paypal' },
+    payment_method_data: { type: 'googlepay' },
     mandate_data: {
       customer_acceptance: {
         type: 'online',

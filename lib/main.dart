@@ -18,6 +18,7 @@ import 'package:children/pages/payment_screen.dart';
 import 'package:children/services/auth_service.dart';
 import 'firebase_options.dart'; // FlutterFire CLI 產生
 import 'package:children/pages/height_weight_chart.dart';
+import 'package:children/provider/calendar_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
         Provider<StorageService>(create: (_) => StorageService()),
         Provider<AuthService>(create: (_) => AuthService()),
         ChangeNotifierProvider<AppState>(create: (_) => AppState()),
+        ChangeNotifierProvider<CalendarProvider>(create: (_) => CalendarProvider()),
       ],
       child: MaterialApp(
         theme: ThemeData(

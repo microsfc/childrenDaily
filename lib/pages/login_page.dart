@@ -5,6 +5,7 @@ import 'package:children/pages/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:children/widgets/error_dialog.dart';
 import 'package:children/services/auth_service.dart';
+import 'package:children/dialog/register_dialog.dart';
 
 const childPrimaryColor = Color(0xFF00BFA6);
 
@@ -71,7 +72,7 @@ class _AuthCardState extends State<AuthCard> {
   bool isObscure = true;
   bool confirmIsObscure = true;
 
-  final errorDialog = ErrorDialog();
+  final errorDialog = ErrorDialog(errorMessage: '');
 
   final GlobalKey<FormState> _formKey = GlobalKey();
   final Map<String, String> _authData = {
@@ -108,16 +109,21 @@ class _AuthCardState extends State<AuthCard> {
   }
 
   void _signUp() async {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final User? user = await authService.signUpWithEmailAndPassword(
-        _emailController.text, _passwordController.text);
-    if (!mounted) return;
-    if (user != null) {
-      Navigator.of(context).pushNamed(HomePage.routeName);
-    } else {
-      if (!mounted) return;
-      errorDialog.showErrorDialog(context, 'Sign up with Email and Passowrd failed');
-    }
+    showDialog(context: context
+    ,
+    builder: (context) {
+      return RegisterDialog();
+    });
+    // final authService = Provider.of<AuthService>(context, listen: false);
+    // final User? user = await authService.signUpWithEmailAndPassword(
+    //     _emailController.text, _passwordController.text);
+    // if (!mounted) return;
+    // if (user != null) {
+    //   Navigator.of(context).pushNamed(HomePage.routeName);
+    // } else {
+    //   if (!mounted) return;
+    //   errorDialog.showErrorDialog(context, 'Sign up with Email and Passowrd failed');
+    // }
   }
 
   void _signInWithGoogle() async {
