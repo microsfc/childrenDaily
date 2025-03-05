@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AppState extends ChangeNotifier {
   List<String> selectedRecordIDs = [];
   bool isLoading = false;
+  String uid = '';
 
   void addSelectedRecordID(String id) {
     selectedRecordIDs.add(id);
@@ -17,6 +19,11 @@ class AppState extends ChangeNotifier {
 
   void setIsLoading(bool value) {
     isLoading = value;
+    notifyListeners();
+  }
+
+  void setUserId(String value) {
+    uid = value;
     notifyListeners();
   }
 

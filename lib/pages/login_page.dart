@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:children/helper/button.dart';
+import 'package:children/state/AppState.dart';
 import 'package:children/pages/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:children/widgets/error_dialog.dart';
@@ -114,16 +115,6 @@ class _AuthCardState extends State<AuthCard> {
     builder: (context) {
       return RegisterDialog();
     });
-    // final authService = Provider.of<AuthService>(context, listen: false);
-    // final User? user = await authService.signUpWithEmailAndPassword(
-    //     _emailController.text, _passwordController.text);
-    // if (!mounted) return;
-    // if (user != null) {
-    //   Navigator.of(context).pushNamed(HomePage.routeName);
-    // } else {
-    //   if (!mounted) return;
-    //   errorDialog.showErrorDialog(context, 'Sign up with Email and Passowrd failed');
-    // }
   }
 
   void _signInWithGoogle() async {
@@ -155,6 +146,8 @@ class _AuthCardState extends State<AuthCard> {
               _emailController.text, _passwordController.text)
           .then((value) {
         if (value != null) {
+          AppState appState = Provider.of<AppState>(context, listen: false);
+          appState.setUserId(value.uid);
           Navigator.of(context).pushNamed(HomePage.routeName);
         } else {
           if (!mounted) return;

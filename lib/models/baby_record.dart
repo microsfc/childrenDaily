@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BabyRecord {
   final String id; // Firestore 文件的 id
+  final String uid; // 使用者的 id
   final DateTime date; // 日期
   final String photoUrl; // 照片的 URL
   final String note; // 紀錄的文字
@@ -12,6 +13,7 @@ class BabyRecord {
 
   BabyRecord({
     required this.id,
+    required this.uid,
     required this.date,
     required this.photoUrl,
     required this.note,
@@ -25,6 +27,7 @@ class BabyRecord {
   factory BabyRecord.fromMap(Map<String, dynamic> map, String documentId) {
     return BabyRecord(
       id: documentId,
+      uid: map['uid'],
       date: (map['date'] as Timestamp).toDate(),
       photoUrl: map['photoUrl'],
       note: map['note'],
@@ -39,6 +42,7 @@ class BabyRecord {
   Map<String, dynamic> toMap() {
     return {
       'date': date,
+      'uid': uid,
       'photoUrl': photoUrl,
       'note': note,
       'tags': tags,

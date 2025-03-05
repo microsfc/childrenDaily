@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+import 'package:children/state/AppState.dart';
 import 'package:children/pages/home_page.dart';
 import 'package:children/models/measurement.dart';
 import 'package:children/services/firestore_service.dart';
@@ -26,16 +27,19 @@ class _GrowthChartPageState extends State<GrowthChartPage> {
     0: 50.0, 1: 54.7, 2: 58.4, 3: 61.4, // ... 假資料
   };
   final List<Measurement> measurements = [];
+  String userId = '';
 
   Future<List<Measurement>> getHeightWeightData() async {
     final firestoreService = Provider.of<FirestoreService>(context, listen: false);
-    final List<Measurement> measurements = await firestoreService.getHeightWeight() ; // 寶寶量測資料
+    final List<Measurement> measurements = await firestoreService.getHeightWeight(userId) ; // 寶寶量測資料
     return measurements;
   }
 
   @override
   void initState() {
     super.initState();
+    final appState = AppState.of(context);
+    userId = appState.uid;
     getHeightWeightData().then((value) {
       setState(() {
         measurements.addAll(value);

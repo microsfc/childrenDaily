@@ -1,5 +1,6 @@
 import '../models/baby_record.dart';
 import '../models/measurement.dart';
+import 'package:children/state/AppState.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
@@ -53,12 +54,12 @@ class FirestoreService {
     await batch.commit();
   }
 
-  Future<Stream<List<BabyRecord>>> getTagsStartingWith(String prefix) async {
+  Future<Stream<List<BabyRecord>>> getTagsStartingWith(String prefix, String uid) async {
     // 資料庫 tags 欄位 index
     return _babyRecordsCollection
-        .orderBy('date') // 必須先 orderBy 同一個欄位
+        .where('uid', isEqualTo: uid)
         .where('tags', arrayContains: prefix)
-        // .where('note', isLessThan: '${prefix}\uf8ff')
+        .orderBy('date') // 必須先 orderBy 同一個欄位
         .snapshots()
         .map((snapshot) {
       return snapshot.docs
@@ -69,8 +70,9 @@ class FirestoreService {
   }
 
   // 取得所有 BabyRecord (依日期排序)
-  Stream<List<BabyRecord>> getBabyRecords() {
+  Stream<List<BabyRecord>> getBabyRecords(String uid) {
     return _babyRecordsCollection
+        .where('uid', isEqualTo: uid)
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
@@ -83,8 +85,9 @@ class FirestoreService {
 
   // batch to fetch records
   Future<QuerySnapshot> getBabyRecordsBatch(
-      {required int limit, DocumentSnapshot? lastDocument}) async {
+      {required int limit, DocumentSnapshot? lastDocument, required String uid}) async {
     Query query = _babyRecordsCollection
+        .where('uid', isEqualTo: uid)
         .orderBy('date', descending: true);
 
     if (lastDocument != null) {
@@ -98,8 +101,9 @@ class FirestoreService {
   }
   // batch with keyword search records
   Future<QuerySnapshot> getBabyRecordsKeyWordBatch(
-      {required int limit, DocumentSnapshot? lastDocument, required keyword}) async {
+      {required int limit, DocumentSnapshot? lastDocument, required keyword, required uid}) async {
     Query query = _babyRecordsCollection
+        .where('uid', isEqualTo: uid)
         .orderBy('date', descending: true)
         .where('tags', arrayContains: keyword);
 
@@ -110,8 +114,9 @@ class FirestoreService {
   }
 
   // 取得所有 Measurement (依日期排序)
-  Future<List<Measurement>> getHeightWeight() async {
+  Future<List<Measurement>> getHeightWeight(String uid) async {
     final snapshot = await _heightWeightCollection
+        .where('uid', isEqualTo: uid)
         .orderBy('date', descending: true)
         .get();
   

@@ -1,6 +1,9 @@
+import 'package:children/state/AppState.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:children/widgets/error_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -39,6 +42,13 @@ class AuthService {
     try {
       final UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email, password: password);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (userCredential.user != null) { 
+        prefs.setString('email', userCredential.user!.email!);
+        prefs.setString('uid', userCredential.user!.uid);
+        final appState = AppState();
+        appState.setUserId(userCredential.user!.uid);
+      }
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       print('Sign in error: ${e.code}');
@@ -52,14 +62,24 @@ class AuthService {
     try {
       final UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
+      if (userCredential.user != null) { 
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('email', userCredential.user!.email!);
+          prefs.setString('uid', userCredential.user!.uid);
+          final appState = AppState();
+          appState.setUserId(userCredential.user!.uid);
+      }
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        ErrorDialog(errorMessage: 'The password provided is too weak.');
+        // ErrorDialog(errorMessage: 'The password provided is too weak.');
+        throw 'The password provided is too weak.';
       } else if (e.code == 'email-already-in-use') {
-        ErrorDialog(errorMessage: 'The account already exists for that email.');
+        // ErrorDialog(errorMessage: 'The account already exists for that email.');
+        throw 'The account already exists for that email.';
       } else {
-        ErrorDialog(errorMessage: 'Error signing up with email and password');
+        // ErrorDialog(errorMessage: 'Error signing up with email and password');
+        throw 'Error signing up with email and password';
       }
       return null;
     }

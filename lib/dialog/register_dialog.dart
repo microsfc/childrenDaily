@@ -29,14 +29,20 @@ class _RegisterDialogState extends State<RegisterDialog> {
       _errorMessage = ''; // 清空錯誤訊息
     });
     final authService = Provider.of<AuthService>(context, listen: false);
-    final User? user = await authService.signUpWithEmailAndPassword(
+    try {
+     final User? user = await authService.signUpWithEmailAndPassword(
                       _emailController.text, _passwordController.text);
-    if (user != null) {
-      Navigator.of(context).pushNamed(HomePage.routeName);
-      Navigator.of(context).pop(); // 註冊成功後關閉 Dialog
+     if (user != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('註冊成功，請登入')),
+        );
+        Navigator.of(context).pop(); // 註冊成功後關閉 Dialog
+        Navigator.of(context).pushNamed(HomePage.routeName);
+    } 
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('註冊成功，請登入')),
-      );
+          SnackBar(content: Text(e.toString())),
+        );
     }
   }
 

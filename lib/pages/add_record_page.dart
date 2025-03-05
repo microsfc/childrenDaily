@@ -27,11 +27,19 @@ class _AddRecordPageState extends State<AddRecordPage> {
   File? _selectedImage;
   String title = '';
   String updateId = '';
+  String userId = '';
   final _noteController = TextEditingController();
   final _tagsController = TextEditingController();
   final _vaccController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final appState = AppState.of(context);
+    userId = appState.uid;
+  }
 
   Future<void> _pickDate() async {
     DateTime now = DateTime.now();
@@ -80,6 +88,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
 
         final babyRecord = BabyRecord(
             id: '',
+            uid: userId,
             date: _selectedDay!,
             photoUrl: photoUrl ?? '',
             vaccineStatus: _vaccController.text,
@@ -91,6 +100,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
         await firestoreService.addOrUpdateRecord(babyRecord);
         final heightWeightMes = Measurement(
             id: updateId,
+            uid: userId,
             date: _selectedDay!,
             height: double.tryParse(_heightController.text) ?? 0.0,
             weight: double.tryParse(_weightController.text) ?? 0.0);

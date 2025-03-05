@@ -34,9 +34,9 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
   bool isSearching = false;
   // 搜尋關鍵字
   String searchKeyword = '';
+  String userId = '';
   // 搜尋框的控制器
   final TextEditingController searchController = TextEditingController();
-
   /// Fetch the first (or next) batch of records
   Future<void> _fetchRecords() async {
     
@@ -47,18 +47,20 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
     }
 
     // Base query: ordering by a field you want to sort by (e.g. timestamp)
-  
-    final firestoreService =
-        Provider.of<FirestoreService>(context, listen: false);
+    final firestoreService = Provider.of<FirestoreService?>(context, listen: false);
+    if (firestoreService == null) {
+      print("FirestoreService is null!");
+      return;
+    }
     final QuerySnapshot<Object?> recordsSnapshot;
 
     if (searchKeyword.isEmpty) {
       recordsSnapshot = await firestoreService.getBabyRecordsBatch(
-        limit: 5, lastDocument: _lastDocument
+        limit: 5, lastDocument: _lastDocument, uid: userId
       );
     } else {
       recordsSnapshot = await firestoreService.getBabyRecordsKeyWordBatch(
-        limit: 5, lastDocument: _lastDocument, keyword: searchKeyword
+        limit: 5, lastDocument: _lastDocument, keyword: searchKeyword, uid: userId
       );
     }
     
@@ -90,8 +92,13 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
   void initState() {
     super.initState();
     _lastDocument = null;
-    _fetchRecords();
-    _scrollController.addListener(_onScroll);
+    final appState = AppState.of(context);
+    userId = appState.uid;
+
+    Future.microtask(() {
+      _fetchRecords();
+      _scrollController.addListener(_onScroll);
+    });
   }
 
   void _onScroll() {
@@ -132,7 +139,6 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
     if (route is PageRoute) {
       routeObserver.subscribe(this, route);
     }
-    
   }
 
 
@@ -140,8 +146,8 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
     final firestoreService =
         Provider.of<FirestoreService>(context, listen: false);
     return searchKeyword.isEmpty
-        ? firestoreService.getBabyRecords()
-        : await firestoreService.getTagsStartingWith(searchKeyword);
+        ? firestoreService.getBabyRecords(userId)
+        : await firestoreService.getTagsStartingWith(searchKeyword, userId);
   }
 
   Future<void> confirmDeleteRecord(BuildContext context) async {

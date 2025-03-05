@@ -3,8 +3,10 @@ import '../models/baby_record.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/firestore_service.dart';
+import 'package:children/state/AppState.dart';
 import 'package:children/pages/home_page.dart';
 import 'package:table_calendar/table_calendar.dart';
+
 
 
 class CalendarPage extends StatefulWidget {
@@ -22,11 +24,14 @@ class _CalendarPageState extends State<CalendarPage> {
   // 紀錄資料 (以日期為 key，對應該日所有紀錄)
   // 例如 { 2023-01-01: [recordA, recordB], 2023-01-02: [recordC], ... }
   Map<DateTime, List<BabyRecord>> _groupedRecords = {};
-
+  String userId = '';
   @override
   void initState() {
     super.initState();
     _focusedDate = ValueNotifier(DateTime.now());
+    final appState = AppState.of(context);
+    userId = appState.uid;
+
   }
 
   @override
@@ -49,7 +54,7 @@ class _CalendarPageState extends State<CalendarPage> {
         )
       ),
       body: StreamBuilder<List<BabyRecord>>(
-        stream: firestoreService.getBabyRecords(),
+        stream: firestoreService.getBabyRecords(userId),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('抓取資料錯誤'));
