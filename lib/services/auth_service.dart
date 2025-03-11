@@ -1,7 +1,12 @@
+import 'dart:io';
+import 'package:children/models/appuser.dart';
 import 'package:children/state/AppState.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:children/widgets/error_dialog.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:children/services/storage_service.dart';
+import 'package:children/services/firestore_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -57,19 +62,33 @@ class AuthService {
     }
   }
 
-  Future<User?> signUpWithEmailAndPassword(
-      String email, String password) async {
+  Future<AppUser?> signUpWithEmailAndPassword(
+      String email, String password, String displayName, File? profileImage) async {
     try {
       final UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
-      if (userCredential.user != null) { 
+      if (userCredential.user != null) {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('email', userCredential.user!.email!);
           prefs.setString('uid', userCredential.user!.uid);
-          final appState = AppState();
-          appState.setUserId(userCredential.user!.uid);
+          String imageUrl = '';
+          if (profileImage != null) {
+            imageUrl = await StorageService().uploadProfileImage(profileImage, userCredential.user!.uid);
+          }
+          await FirestoreService().addOrUpdateUser(AppUser(
+            uid: userCredential.user!.uid,
+            email: userCredential.user!.email!,
+            displayName: displayName,
+            profileImageUrl: imageUrl,
+          ));
+          return AppUser(
+            uid: userCredential.user!.uid,
+            email: userCredential.user!.email!,
+            displayName: displayName,
+            profileImageUrl: imageUrl,
+          );
       }
-      return userCredential.user;
+      return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         // ErrorDialog(errorMessage: 'The password provided is too weak.');

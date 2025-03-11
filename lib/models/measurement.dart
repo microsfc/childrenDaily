@@ -22,7 +22,7 @@ class Measurement {
       'uid': uid,
       'date': date,
       'height': height,
-      ' ': weight,
+      'weight': weight,
     };
   }
 }

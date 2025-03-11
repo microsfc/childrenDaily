@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:children/helper/button.dart';
+import 'package:children/models/appuser.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/pages/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:children/widgets/error_dialog.dart';
 import 'package:children/services/auth_service.dart';
 import 'package:children/dialog/register_dialog.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:children/services/firestore_service.dart';
 
 const childPrimaryColor = Color(0xFF00BFA6);
 
@@ -129,7 +132,9 @@ class _AuthCardState extends State<AuthCard> {
     }
   }
 
-  void _submit() {
+  Future <void> _submit() async {
+    final firestoreService = Provider.of<FirestoreService?>(context, listen: false);
+
     if (!_formKey.currentState!.validate()) {
       // Invalid!
       return;
@@ -144,10 +149,17 @@ class _AuthCardState extends State<AuthCard> {
       authService
           .signInWithEmailAndPassword(
               _emailController.text, _passwordController.text)
-          .then((value) {
+          .then((value) async {
         if (value != null) {
           AppState appState = Provider.of<AppState>(context, listen: false);
           appState.setUserId(value.uid);
+          // 從Firestore獲取用戶詳細信息
+          final QuerySnapshot<Object?> recordsSnapshot;
+          recordsSnapshot = await firestoreService!.getUser(value.uid);
+          final List<AppUser> user = recordsSnapshot.docs
+              .map((doc) => AppUser.fromMap(doc.data() as Map<String, dynamic>, value.uid))
+              .toList();
+          appState.setUser(user[0]);
           Navigator.of(context).pushNamed(HomePage.routeName);
         } else {
           if (!mounted) return;

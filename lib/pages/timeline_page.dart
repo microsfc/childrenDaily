@@ -5,11 +5,13 @@ import '../widgets/record_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/firestore_service.dart';
+import 'package:children/models/appuser.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
 import 'package:children/pages/payment_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
+
 
 // import 'package:timeline_tile/timeline_tile.dart';
 
@@ -35,6 +37,7 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
   // 搜尋關鍵字
   String searchKeyword = '';
   String userId = '';
+  AppUser? currentUser;
   // 搜尋框的控制器
   final TextEditingController searchController = TextEditingController();
   /// Fetch the first (or next) batch of records
@@ -52,8 +55,8 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
       print("FirestoreService is null!");
       return;
     }
-    final QuerySnapshot<Object?> recordsSnapshot;
 
+    final QuerySnapshot<Object?> recordsSnapshot;
     if (searchKeyword.isEmpty) {
       recordsSnapshot = await firestoreService.getBabyRecordsBatch(
         limit: 5, lastDocument: _lastDocument, uid: userId
@@ -94,6 +97,7 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
     _lastDocument = null;
     final appState = AppState.of(context);
     userId = appState.uid;
+    currentUser = appState.currentUser;
 
     Future.microtask(() {
       _fetchRecords();
@@ -191,11 +195,24 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
     // var filteredItems = getFilterItems();
     final barTitle =
         '${S.of(context).activityRecord} ${S.of(context).timeline}';
+    final appState = AppState.of(context);
     return Scaffold(
         appBar: AppBar(
           title: Text(barTitle),
           automaticallyImplyLeading: false,          
           actions: [
+            Row(
+              children: [
+                Text(currentUser?.displayName ?? '',
+                    style: const TextStyle(fontSize: 16)),
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage(currentUser!.profileImageUrl),
+                  // child: const Icon(Icons.person, size: 18, color: Colors.white)
+                  ),
+              ],
+            ),
             Consumer<AppState>(
               builder: (context, appState, child) {
                 if (appState.selectedRecordIDs.isNotEmpty) {
