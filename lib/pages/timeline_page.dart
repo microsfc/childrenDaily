@@ -8,9 +8,11 @@ import '../services/firestore_service.dart';
 import 'package:children/models/appuser.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:children/pages/payment_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
+
 
 
 // import 'package:timeline_tile/timeline_tile.dart';
@@ -211,6 +213,8 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
                   backgroundImage: NetworkImage(currentUser!.profileImageUrl),
                   // child: const Icon(Icons.person, size: 18, color: Colors.white)
                   ),
+                const SizedBox(width: 8),
+                IconButton(onPressed: () async { FirebaseAuth.instance.signOut();}, icon: const Icon(Icons.logout)),
               ],
             ),
             Consumer<AppState>(

@@ -2,6 +2,7 @@ import './timeline_page.dart';
 import './calendar_page.dart';
 import './add_record_page.dart';
 import '../generated/l10n.dart';
+import './calendarEvent_page.dart';
 import './height_weight_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> {
     const AddRecordPage(),
     const CalendarPage(),
     const GrowthChartPage(rangeInYears: 1),
+    const CalendarEventPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -68,7 +70,11 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(
             icon: const Icon(Icons.show_chart),
             label: "Growth Chart",
-          )
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.event),
+            label: "Calendar Event",
+          ),
         ],
         onDestinationSelected: _onItemTapped,
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,

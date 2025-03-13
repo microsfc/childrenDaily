@@ -12,14 +12,16 @@ import 'package:provider/provider.dart';
 import 'services/firestore_service.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:children/pages/payment_screen.dart';
 import 'package:children/services/auth_service.dart';
 import 'firebase_options.dart'; // FlutterFire CLI 產生
 import 'package:children/pages/height_weight_chart.dart';
-import 'package:children/provider/calendar_provider.dart';
+import 'package:children/services/calendar_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -47,8 +49,12 @@ class MyApp extends StatelessWidget {
         Provider<FirestoreService>(create: (_) => FirestoreService()),
         Provider<StorageService>(create: (_) => StorageService()),
         Provider<AuthService>(create: (_) => AuthService()),
+        Provider<CalendarService>(create: (_) => CalendarService()),
         ChangeNotifierProvider<AppState>(create: (_) => AppState()),
-        ChangeNotifierProvider<CalendarProvider>(create: (_) => CalendarProvider()),
+        StreamProvider<User?>.value(
+          value: FirebaseAuth.instance.authStateChanges(),
+          initialData: FirebaseAuth.instance.currentUser,
+        ),
       ],
       child: MaterialApp(
         theme: ThemeData(
