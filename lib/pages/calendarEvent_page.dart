@@ -60,10 +60,13 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
 
   // 顯示新增事件對話框
   Future<CalendarEvent?> _showAddEventDialog() async {
-    TextEditingController _titleController = TextEditingController();
-    TextEditingController _descriptionController = TextEditingController();
+    TextEditingController titleController = TextEditingController();
+    TextEditingController descriptionController = TextEditingController();
     DateTime startTime = _selectedDay!;
     DateTime endTime = _selectedDay!.add(Duration(hours: 1));
+
+    ValueNotifier<TimeOfDay> inputStartTime = ValueNotifier(TimeOfDay.fromDateTime(startTime));
+    ValueNotifier<TimeOfDay> inputEndTime = ValueNotifier(TimeOfDay.fromDateTime(endTime));
 
     return showDialog<CalendarEvent>(context: context,
      builder: (BuildContext context) {
@@ -74,13 +77,13 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: _titleController,
+                controller: titleController,
                 decoration: InputDecoration(
                   hintText: '輸入標題',
                 ),
               ),
               TextField(
-                controller: _descriptionController,
+                controller: descriptionController,
                 decoration: InputDecoration(
                   hintText: '輸入描述',
                 ),
@@ -88,16 +91,20 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
               Row(
                   children: [
                   const Text('開始時間'),
-                  Text(DateFormat('yyyy-MM-dd HH:mm').format(startTime)),
+                  ValueListenableBuilder(
+                    valueListenable: inputStartTime, 
+                    builder: (context, startTime, _) {
+                      return Text(startTime.format(context));
+                  }),
                   IconButton(
                    onPressed: () async {
                     final TimeOfDay? pickTime = await showTimePicker(
                       context: context,
-                      initialTime: TimeOfDay.fromDateTime(startTime),
+                      initialTime: inputStartTime.value,
                     );
                     if (pickTime != null) {
                       setState(() {
-                        startTime = DateTime(startTime.year, startTime.month, startTime.day, pickTime.hour, pickTime.minute);
+                        inputStartTime.value = pickTime;
                       });
                     }
                    },
@@ -108,18 +115,22 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
               Row(
                 children: [
                   const Text('結束時間'),
-                  Text(DateFormat('yyyy-MM-dd HH:mm').format(endTime)),
+                  ValueListenableBuilder(
+                    valueListenable: inputEndTime, 
+                    builder: (context, endTime, _) {
+                      return Text(endTime.format(context));
+                  }),
                   IconButton(
                     onPressed: () async {
-                      final TimeOfDay? pickTime = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.fromDateTime(endTime),
-                      );
-                      if (pickTime != null) {
-                        setState(() {
-                          endTime = DateTime(endTime.year, endTime.month, endTime.day, pickTime.hour, pickTime.minute);
-                        });
-                      }
+                      final TimeOfDay? pickedTime = await showTimePicker(
+                            context: context,
+                            initialTime: inputEndTime.value
+                          );
+                          if (pickedTime != null) {
+                            setState(() {
+                              inputEndTime.value = pickedTime;
+                            });
+                          }
                     },
                     icon: Icon(Icons.access_time),
                   )
@@ -140,15 +151,25 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
               if (userId == null) {
                 Navigator.of(context).pop(null);
               } else {
-                  // Random random = Random();
-                  // random.nextInt(100000).toString(),
                   final newEvent = CalendarEvent(
                     id: '',
                     creatorId: userId,
-                    title: _titleController.text,
-                    description: _descriptionController.text,
-                    startTime: startTime,
-                    endTime: endTime,
+                    title: titleController.text,
+                    description: descriptionController.text,
+                    startTime: DateTime(
+                      _selectedDay!.year, 
+                      _selectedDay!.month, 
+                      _selectedDay!.day, 
+                      inputStartTime.value.hour, 
+                      inputStartTime.value.minute
+                    ),
+                    endTime: DateTime(
+                      _selectedDay!.year, 
+                      _selectedDay!.month, 
+                      _selectedDay!.day, 
+                      inputEndTime.value.hour, 
+                      inputEndTime.value.minute
+                    ),
                     sharedWith: [],
                   );
                   Navigator.of(context).pop(newEvent);  
@@ -290,12 +311,13 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
     });
   }
   
-  // 選擇日期 (flutter_neat_and_clean_calendar 使用 onDateChange 回調)
+  // // 選擇日期 (flutter_neat_and_clean_calendar 使用 onDateChange 回調)
   void _onDateChange(DateTime date) {
-    setState(() {
-      _selectedDay = date;
-      _selectedEvents.value = _getEventsForDay(date);
-    });
+    // setState(() {
+    //   _selectedEvents.value = _getEventsForDay(date);
+    // });
+    _selectedDay = date;
+    _buildEventList(date);
   }
 
   // 新增事件
@@ -307,7 +329,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
     if (event != null) {
       final CalendarEvent? newEvent = await _calendarService!.createEvent(event);
       if (newEvent != null) {
-        _selectDay(_selectedDay!);
+        _buildEventList(_selectedDay);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('新增事件成功')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('新增事件失敗')));
@@ -321,7 +343,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
     if (updatedEvent != null) {
       final CalendarEvent? updateEvent = await _calendarService!.updateEvent(updatedEvent);
       if (updateEvent != null) {
-        _selectDay(_selectedDay!);
+        _buildEventList(_selectedDay);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('編輯事件成功')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('編輯事件失敗')));
@@ -335,7 +357,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
     if (confirmDelete) {
       final bool success = await _calendarService!.deleteEvent(event.id);
       if (success) {
-        _selectDay(_selectedDay!);
+        _buildEventList(_selectedDay);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('刪除事件成功')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('刪除事件失敗')));
@@ -344,7 +366,13 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
   }
 
   // 顯示事件列表
-  Widget _buildEventList() {
+  Widget _buildEventList(DateTime? selectedDay) {
+    if (selectedDay == null) {
+       _selectedEvents.value = _getEventsForDay(DateTime.now());
+    } else {
+      _selectedEvents.value = _getEventsForDay(selectedDay);
+    }
+    
     return ValueListenableBuilder(
       valueListenable: _selectedEvents, 
       builder: (context, events, _) {
@@ -416,6 +444,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
               _neatEvents = _buildNeatCleanCalendarEventsMap(_allEvents);
               
               return Calendar(
+                initialDate: DateTime.now(),
                 startOnMonday: true,
                 weekDays: ['Mo', 'Tu', 'Wen', 'Thu', 'Fri', 'Sat', 'Sun'],
                 eventsList: _neatEvents,
@@ -437,16 +466,16 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
                 onDateSelected: (date) => _onDateChange(date),
                 isExpanded: true,
                 eventListBuilder: _buildNeatCleanCalendarEventList,
-                onRangeSelected: (range) {
-                  print('Range selected: $range');
-                },
+                // onRangeSelected: (range) {
+                //   print('Range selected: $range');
+                // },
               );
 
             }
           ),
           SizedBox(height: 8),
           Expanded(
-            child: _buildEventList(),
+            child: _buildEventList(null),
           ),
         ],
       ),
