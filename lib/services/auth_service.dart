@@ -8,10 +8,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:children/services/storage_service.dart';
 import 'package:children/services/firestore_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   Future<User?> signInWithGoogle() async {
     try {
@@ -75,17 +78,21 @@ class AuthService {
           if (profileImage != null) {
             imageUrl = await StorageService().uploadProfileImage(profileImage, userCredential.user!.uid);
           }
-          await FirestoreService().addOrUpdateUser(AppUser(
+          // 登錄成功後，獲取FCM令牌
+          String? token = await _messaging.getToken();
+          await FirestoreService().addUser(AppUser(
             uid: userCredential.user!.uid,
             email: userCredential.user!.email!,
             displayName: displayName,
             profileImageUrl: imageUrl,
+            fcmToken: token!,
           ));
           return AppUser(
             uid: userCredential.user!.uid,
             email: userCredential.user!.email!,
             displayName: displayName,
             profileImageUrl: imageUrl,
+            fcmToken: token,
           );
       }
       return null;

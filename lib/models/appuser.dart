@@ -5,12 +5,15 @@ class AppUser {
   final String email;
   final String displayName;
   final String profileImageUrl;
+  String fcmToken;
 
   AppUser({
     required this.uid,
     required this.email,
     required this.displayName,
-    required this.profileImageUrl,});
+    required this.profileImageUrl,
+    required this.fcmToken,
+    });
 
   factory AppUser.fromMap(Map<String, dynamic> map, String userId) {
     return AppUser(
@@ -18,6 +21,7 @@ class AppUser {
       email: map['email'] as String? ?? 'No Email',
       displayName: map['displayName'] as String? ?? 'No Name',
       profileImageUrl: map['profileImageUrl'] as String? ?? 'No Image',
+      fcmToken: map['fcmToken'] as String ?? 'No Token',
     );
     // print('Raw Firestore Data: $map');  
     // final user = AppUser(
@@ -41,6 +45,7 @@ class AppUser {
       'email': email,
       'displayName': displayName,
       'profileImageUrl': profileImageUrl,
+      'fcmToken': fcmToken,
     };
    }
 }

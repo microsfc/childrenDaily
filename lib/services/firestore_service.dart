@@ -15,8 +15,8 @@ class FirestoreService {
   final CollectionReference _usersCollection =
       FirebaseFirestore.instance.collection('users');
 
-  // 新增或更新使用者
-  Future<void> addOrUpdateUser(AppUser user) async {
+  // 新增使用者
+  Future<void> addUser(AppUser user) async {
     await _usersCollection.add(user.toMap());
     // if (user.uid.isEmpty) {
     //   // 新增
@@ -25,6 +25,10 @@ class FirestoreService {
     //   // 更新
     //   await _usersCollection.doc(user.uid).update(user.toMap());
     // }
+  }
+  // 更新使用者
+  Future<void> updateUser(AppUser user) async {
+    await _usersCollection.doc(user.uid).update(user.toMap());
   }
     
   // 新增或更新 BabyRecord

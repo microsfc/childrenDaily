@@ -21,10 +21,31 @@ import 'firebase_options.dart'; // FlutterFire CLI 產生
 import 'package:children/pages/height_weight_chart.dart';
 import 'package:children/services/calendar_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'; // 導入 Firebase Messaging
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // 導入 Flutter Local Notifications
 
 
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+// 定義通知處理背景服務
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('收到背景通知: ${message.notification?.title}');
+  // 不需要在這裡顯示通知，系統會自動處理
+}
+
+// 創建通知頻道 ID 和名稱
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'event_reminders_channel', // id
+  '事件提醒', // title
+  description: '接收即將開始的事件提醒', // description
+  importance: Importance.high,
+);
+
+// 初始化 FlutterLocalNotificationsPlugin
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +56,20 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // 設置背景消息處理器
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // 創建 Android 通知頻道
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  // 設置 iOS 通知設定
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+  
   runApp(const MyApp());
 }
 

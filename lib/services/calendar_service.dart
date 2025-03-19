@@ -44,9 +44,11 @@ class CalendarService {
   }
 
   // 讀取所有事件
-  Stream<List<CalendarEvent>> getAllEvents() {
+  Stream<List<CalendarEvent>> getAllEventsWithSharedUser() {
+    
     return _firestore
         .collection(EVENT_COLLECTION)
+        .where('sharedWith', arrayContains: getCurrentUserId())
         .orderBy('startTime')
         .snapshots()
         .map((snapshot) {

@@ -8,6 +8,7 @@ class AppState extends ChangeNotifier {
   String uid = '';
   AppUser? currentUser;
   String profileImageDownloadUrl = '';
+  String fcmToken = '';
 
   void addSelectedRecordID(String id) {
     selectedRecordIDs.add(id);
@@ -19,6 +20,10 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setFcmToken(String? token) {
+    fcmToken = token!;
+    notifyListeners();
+  }
   void setIsLoading(bool value) {
     isLoading = value;
     notifyListeners();

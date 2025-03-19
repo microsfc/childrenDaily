@@ -11,6 +11,7 @@ import 'package:children/dialog/register_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:children/services/firestore_service.dart';
 
+
 const childPrimaryColor = Color(0xFF00BFA6);
 
 class LoginPage extends StatelessWidget {

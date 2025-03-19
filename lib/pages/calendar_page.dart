@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import '../services/firestore_service.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/pages/home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:table_calendar/table_calendar.dart';
+
 
 
 
@@ -45,13 +47,15 @@ class _CalendarPageState extends State<CalendarPage> {
     final firestoreService = Provider.of<FirestoreService>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('日曆'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () {
-            Navigator.of(context).pushNamed(HomePage.routeName);
-          },
-        )
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushNamed('/');
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<List<BabyRecord>>(
         stream: firestoreService.getBabyRecords(userId),

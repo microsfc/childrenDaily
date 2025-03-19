@@ -5,11 +5,9 @@ import 'package:children/models/appuser.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/pages/home_page.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:children/widgets/error_dialog.dart';
 import 'package:children/services/auth_service.dart';
-
 
 class RegisterDialog extends StatefulWidget {
   const RegisterDialog({super.key});
@@ -93,6 +91,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
       appState.setUserId(user.uid);
       appState.setProfileImageUrl(user.profileImageUrl);
       appState.setUser(user);
+      appState.setFcmToken(user.fcmToken);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('註冊成功，請登入')),
       );

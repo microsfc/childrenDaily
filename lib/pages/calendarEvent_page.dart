@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../services/calendar_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // 導入 Flutter Local Notifications
 
@@ -23,6 +24,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
   CalendarService? _calendarService;
   List<CalendarEvent> _allEvents = []; // 儲存所有事件 (從 StreamBuilder 接收)
   List<NeatCleanCalendarEvent> _neatEvents = []; // flutter_neat_and_clean_calendar 的事件格式
+  bool test = false;
 
   @override
   void initState() {
@@ -64,6 +66,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
     TextEditingController descriptionController = TextEditingController();
     DateTime startTime = _selectedDay!;
     DateTime endTime = _selectedDay!.add(Duration(hours: 1));
+    List<String> selectedUsers = [];
 
     ValueNotifier<TimeOfDay> inputStartTime = ValueNotifier(TimeOfDay.fromDateTime(startTime));
     ValueNotifier<TimeOfDay> inputEndTime = ValueNotifier(TimeOfDay.fromDateTime(endTime));
@@ -87,7 +90,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
                 decoration: InputDecoration(
                   hintText: '輸入描述',
                 ),
-              ),
+              ),  
               Row(
                   children: [
                   const Text('開始時間'),
@@ -134,7 +137,56 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
                     },
                     icon: Icon(Icons.access_time),
                   )
-                ],)
+                ],),
+                SizedBox(height: 20),
+                const Text('分享給其他使用者:', style: TextStyle(fontWeight: FontWeight.bold)),
+                StreamBuilder(stream:
+                              FirebaseFirestore.instance.collection('users').snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return const Text('抓取資料錯誤');
+                                }
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                }
+                                List<Widget> sharedUserList = [];
+                                for(var doc in snapshot.data!.docs) {
+                                  final userId = doc['uid'];
+                                  // Avoid sharing with the event creator
+                                  if (userId == Provider.of<CalendarService>(context, listen: false).getCurrentUserId()) {
+                                    continue;
+                                  }
+                                  final userData = doc.data();
+                                  final displayName = userData['displayName'] ?? '';
+                                  sharedUserList.add(
+                                    StatefulBuilder(
+                                      builder: (BuildContext context, StateSetter setState) {
+                                        return SwitchListTile(
+                                          // key: ValueKey(userId),
+                                          title: Text(displayName),
+                                          value: selectedUsers.contains(userId),
+                                          onChanged: (bool newValue) {
+                                            setState(() {
+                                              if (newValue) {
+                                                // add to sharedWith
+                                                selectedUsers.add(userId);                                              
+                                              } else {
+                                                // remove from sharedWith
+                                                selectedUsers.remove(userId);
+                                              }
+                                            });
+                                          },
+                                        ); 
+                                      }
+                                    )
+                                  );
+                                }
+                                return Column(
+                                  children: sharedUserList,
+                                );
+                              }
+                            )
+
             ],
           ),
         ),
@@ -151,6 +203,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
               if (userId == null) {
                 Navigator.of(context).pop(null);
               } else {
+                selectedUsers.add(userId);
                   final newEvent = CalendarEvent(
                     id: '',
                     creatorId: userId,
@@ -170,7 +223,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
                       inputEndTime.value.hour, 
                       inputEndTime.value.minute
                     ),
-                    sharedWith: [],
+                    sharedWith: selectedUsers,
                   );
                   Navigator.of(context).pop(newEvent);  
               }
@@ -189,6 +242,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
     TextEditingController _descriptionController = TextEditingController(text: eventToEdit.description);
     DateTime _startTime = eventToEdit.startTime;
     DateTime _endTime = eventToEdit.endTime;
+    List<String> selectedUsers = [];
 
     return showDialog<CalendarEvent>(
       context: context,
@@ -247,6 +301,52 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
                     ),
                   ],
                 ),
+                StreamBuilder(stream:
+                    FirebaseFirestore.instance.collection('users').snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return const Text('抓取資料錯誤');
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      List<Widget> sharedUserList = [];
+                      for(var doc in snapshot.data!.docs) {
+                        final userId = doc['uid'];
+                        // Avoid sharing with the event creator
+                        if (userId == Provider.of<CalendarService>(context, listen: false).getCurrentUserId()) {
+                          continue;
+                        }
+                        final userData = doc.data();
+                        final displayName = userData['displayName'] ?? '';
+                        sharedUserList.add(
+                          StatefulBuilder(
+                            builder: (BuildContext context, StateSetter setState) {
+                              return SwitchListTile(
+                                // key: ValueKey(userId),
+                                title: Text(displayName),
+                                value: selectedUsers.contains(userId),
+                                onChanged: (bool newValue) {
+                                  setState(() {
+                                    if (newValue) {
+                                      // add to sharedWith
+                                      selectedUsers.add(userId);                                              
+                                    } else {
+                                      // remove from sharedWith
+                                      selectedUsers.remove(userId);
+                                    }
+                                  });
+                                },
+                              ); 
+                            }
+                          )
+                        );
+                      }
+                      return Column(
+                        children: sharedUserList,
+                      );
+                    }
+                  )
               ],
             ),
           ),
@@ -429,10 +529,10 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
       body: Column(
         children: [
           StreamBuilder<List<CalendarEvent>>(
-            stream: _calendarService!.getAllEvents(),
+            stream: _calendarService!.getAllEventsWithSharedUser(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return const Center(child: Text('抓取資料錯誤'));
+                return const Center(child:  Text('抓取資料錯誤'));
               }
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
