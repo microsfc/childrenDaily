@@ -195,9 +195,7 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
   Widget build(BuildContext context) {
     // 過濾清單
     // var filteredItems = getFilterItems();
-    final barTitle =
-        '${S.of(context).activityRecord} ${S.of(context).timeline}';
-    final appState = AppState.of(context);
+    final barTitle = S.of(context).timeline;
     return Scaffold(
         appBar: AppBar(
           title: Text(barTitle),

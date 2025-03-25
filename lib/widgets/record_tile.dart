@@ -22,10 +22,10 @@ class _RecordTileState extends State<RecordTile> {
     final backgroundColor = isSelected ? Colors.blue.shade100 : Colors.white;
     final dateStr = widget.record.date.toLocal().toString().split(' ')[0];
     final noteDesc =
-        widget.record.note.isNotEmpty ? widget.record.note : 'No note';
+        widget.record.note.isNotEmpty ? 'Description: + ${widget.record.note}': '';
     final vaccineText = widget.record.vaccineStatus.isNotEmpty
-        ? 'Vaccine: ${widget.record.vaccineStatus}'
-        : 'No vaccine';
+        ? 'note: ${widget.record.vaccineStatus}'
+        : '';
     final heightText = widget.record.height.isNotEmpty
         ? 'Height: ${widget.record.height}'
         : 'No height';

@@ -59,16 +59,25 @@ class _HomePageState extends State<HomePage> {
     requestPermissionAndGetToken();
     
     // 監聽 token 刷新事件
-    FirebaseMessaging.instance.onTokenRefresh.listen((String token) {
+    FirebaseMessaging.instance.onTokenRefresh.listen((String token) async {
       print('FCM Token 已刷新: $token');
       // 更新 Firestore 中的 token
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        FirebaseFirestore.instance
+      final appState = AppState.of(context);
+        AppUser? updateUser = appState.currentUser;
+        updateUser!.fcmToken = token;
+
+        await FirebaseFirestore.instance
             .collection('users')
-            .doc(currentUser.uid)
-            .update({'fcmToken': token});
-      }
+            .where('uid', isEqualTo: updateUser.uid)
+            .get()
+            .then((QuerySnapshot snapshot) {
+          if (snapshot.docs.isNotEmpty) {
+            // 更新 Firestore 中的用戶資料
+            FirebaseFirestore.instance
+                .collection('users')
+                .doc(snapshot.docs[0].id)
+                .update(updateUser.toMap());
+          }});
     });
     
     // 設置本地通知點擊事件

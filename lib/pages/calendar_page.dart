@@ -47,6 +47,16 @@ class _CalendarPageState extends State<CalendarPage> {
     final firestoreService = Provider.of<FirestoreService>(context);
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () {
+            Navigator.of(context).pushNamed(HomePage.routeName);
+          },
+        ),
+        title: Text(
+          '生活日曆',
+          style: const TextStyle(fontSize: 20),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

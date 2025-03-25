@@ -24,8 +24,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
   CalendarService? _calendarService;
   List<CalendarEvent> _allEvents = []; // 儲存所有事件 (從 StreamBuilder 接收)
   List<NeatCleanCalendarEvent> _neatEvents = []; // flutter_neat_and_clean_calendar 的事件格式
-  bool test = false;
-
+  
   @override
   void initState() {
     super.initState();
@@ -238,11 +237,12 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
 
 // 顯示編輯事件對話框
   Future<CalendarEvent?> _showEditEventDialog(CalendarEvent eventToEdit) async {
-    TextEditingController _titleController = TextEditingController(text: eventToEdit.title);
-    TextEditingController _descriptionController = TextEditingController(text: eventToEdit.description);
-    DateTime _startTime = eventToEdit.startTime;
-    DateTime _endTime = eventToEdit.endTime;
+    TextEditingController titleController = TextEditingController(text: eventToEdit.title);
+    TextEditingController descriptionController = TextEditingController(text: eventToEdit.description);
     List<String> selectedUsers = [];
+    ValueNotifier<DateTime> startTimeNotifier = ValueNotifier(eventToEdit.startTime);
+    ValueNotifier<DateTime> endTimeNotifier =  ValueNotifier(eventToEdit.endTime);
+    
 
     return showDialog<CalendarEvent>(
       context: context,
@@ -254,27 +254,32 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 TextField(
-                  controller: _titleController,
+                  controller: titleController,
                   decoration: const InputDecoration(labelText: '標題'),
                 ),
                 TextField(
-                  controller: _descriptionController,
+                  controller: descriptionController,
                   decoration: const InputDecoration(labelText: '描述'),
                 ),
                 Row(
                   children: <Widget>[
                     const Text('開始時間: '),
-                    Text(DateFormat('yyyy-MM-dd HH:mm').format(_startTime)),
+                    ValueListenableBuilder<DateTime>(
+                      valueListenable: startTimeNotifier,
+                      builder: (context, startTime, _) {
+                        return Text(DateFormat('yyyy-MM-dd HH:mm').format(startTime));
+                      },
+                    ),
                     IconButton(
                       icon: const Icon(Icons.access_time),
                       onPressed: () async {
                         final TimeOfDay? pickedTime = await showTimePicker(
                           context: context,
-                          initialTime: TimeOfDay.fromDateTime(_startTime),
+                          initialTime: TimeOfDay.fromDateTime(startTimeNotifier.value),
                         );
                         if (pickedTime != null) {
                           setState(() {
-                            _startTime = DateTime(_startTime.year, _startTime.month, _startTime.day, pickedTime.hour, pickedTime.minute);
+                            startTimeNotifier.value = DateTime(startTimeNotifier.value.year, startTimeNotifier.value.month, startTimeNotifier.value.day, pickedTime.hour, pickedTime.minute);
                           });
                         }
                       },
@@ -284,17 +289,22 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
                 Row(
                   children: <Widget>[
                     const Text('結束時間: '),
-                    Text(DateFormat('yyyy-MM-dd HH:mm').format(_endTime)),
+                    ValueListenableBuilder(
+                      valueListenable: endTimeNotifier,
+                      builder:  (context, endTime, _) {
+                        return Text(DateFormat('yyyy-MM-dd HH:mm').format(endTime));
+                      },
+                    ),
                     IconButton(
                       icon: const Icon(Icons.access_time),
                       onPressed: () async {
                         final TimeOfDay? pickedTime = await showTimePicker(
                           context: context,
-                          initialTime: TimeOfDay.fromDateTime(_endTime),
+                          initialTime: TimeOfDay.fromDateTime(endTimeNotifier.value),
                         );
                         if (pickedTime != null) {
                           setState(() {
-                            _endTime = DateTime(_endTime.year, _endTime.month, _endTime.day, pickedTime.hour, pickedTime.minute);
+                            endTimeNotifier.value = DateTime(endTimeNotifier.value.year, endTimeNotifier.value.month, endTimeNotifier.value.day, pickedTime.hour, pickedTime.minute);
                           });
                         }
                       },
@@ -362,10 +372,10 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
               onPressed: () {
                 final updatedEvent = CalendarEvent(
                   id: eventToEdit.id,
-                  title: _titleController.text,
-                  description: _descriptionController.text,
-                  startTime: _startTime,
-                  endTime: _endTime,
+                  title: titleController.text,
+                  description: descriptionController.text,
+                  startTime: startTimeNotifier.value,
+                  endTime: endTimeNotifier.value,
                   creatorId: eventToEdit.creatorId, // 保留創建者 ID
                   sharedWith: eventToEdit.sharedWith, // 保留共享用戶列表
                 );
@@ -563,6 +573,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
 
                 hideTodayIcon: true,
                 hideArrows: false,
+                showEvents: false,
                 onDateSelected: (date) => _onDateChange(date),
                 isExpanded: true,
                 eventListBuilder: _buildNeatCleanCalendarEventList,
@@ -573,10 +584,18 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
 
             }
           ),
-          SizedBox(height: 8),
-          Expanded(
-            child: _buildEventList(null),
-          ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 320,
+                  child: 
+                  SingleChildScrollView(
+                    child: _buildEventList(_selectedDay),
+                  
+                  ),
+                ),
+            ],)
         ],
       ),
     );
