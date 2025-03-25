@@ -94,7 +94,7 @@ class FirestoreService {
   // 取得所有 BabyRecord (依日期排序)
   Stream<List<BabyRecord>> getBabyRecords(String uid) {
     return _babyRecordsCollection
-        .where('uid', isEqualTo: uid)
+         .where('sharedIds', arrayContains: uid)
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
@@ -134,7 +134,7 @@ class FirestoreService {
   Future<QuerySnapshot> getBabyRecordsKeyWordBatch(
       {required int limit, DocumentSnapshot? lastDocument, required keyword, required uid}) async {
     Query query = _babyRecordsCollection
-        .where('uid', isEqualTo: uid)
+        .where('sharedIds', arrayContains: uid)
         .orderBy('date', descending: true)
         .where('tags', arrayContains: keyword);
 
@@ -148,7 +148,7 @@ class FirestoreService {
   Future<QuerySnapshot> getBabyRecordsBatch(
       {required int limit, DocumentSnapshot? lastDocument, required String uid}) async {
     Query query = _babyRecordsCollection
-        .where('uid', isEqualTo: uid)
+        .where('sharedIds', arrayContains: uid)
         .orderBy('date', descending: true);
 
     if (lastDocument != null) {

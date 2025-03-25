@@ -212,7 +212,10 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
                   // child: const Icon(Icons.person, size: 18, color: Colors.white)
                   ),
                 const SizedBox(width: 8),
-                IconButton(onPressed: () async { FirebaseAuth.instance.signOut();}, icon: const Icon(Icons.logout)),
+                IconButton(onPressed: () async { 
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context).pushNamed('/');
+                  }, icon: const Icon(Icons.logout)),
               ],
             ),
             Consumer<AppState>(

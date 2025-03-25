@@ -9,6 +9,8 @@ import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
 import 'package:children/pages/home_page.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 
 class AddRecordPage extends StatefulWidget {
@@ -28,6 +30,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
   String title = '';
   String updateId = '';
   String userId = '';
+  List<String> sharedUserIds = [];
   final _noteController = TextEditingController();
   final _tagsController = TextEditingController();
   final _vaccController = TextEditingController();
@@ -95,7 +98,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
             height: _heightController.text,
             weight: _weightController.text,
             note: _noteController.text,
-            tags: tagsLst);
+            tags: tagsLst,
+            sharedIds: sharedUserIds);
         // 將紀錄存入 Firestore
         await firestoreService.addOrUpdateRecord(babyRecord);
         final heightWeightMes = Measurement(
@@ -130,10 +134,12 @@ class _AddRecordPageState extends State<AddRecordPage> {
       _heightController.text = widget.record?.height ?? '';
       _noteController.text = widget.record?.note ?? '';
       _tagsController.text = widget.record?.tags.join(', ') ?? '';
+      sharedUserIds = widget.record?.sharedIds ?? [];
       title = S.of(context).editBabyRecord;
     } else {
       title = S.of(context).addBabyRecord;
-    } 
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -247,7 +253,49 @@ class _AddRecordPageState extends State<AddRecordPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-
+                    const Text('分享給其他使用者:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    StreamBuilder(stream:
+                              FirebaseFirestore.instance.collection('users').snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return const Text('抓取資料錯誤');
+                                }
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                }
+                                List<Widget> sharedUserList = [];
+                                for(var doc in snapshot.data!.docs) {
+                                  final userId = doc['uid'];
+                                  final userData = doc.data();
+                                  final displayName = userData['displayName'] ?? '';
+                                  sharedUserList.add(
+                                    StatefulBuilder(
+                                      builder: (BuildContext context, StateSetter setState) {
+                                        return SwitchListTile(
+                                          // key: ValueKey(userId),
+                                          title: Text(displayName),
+                                          value: sharedUserIds.contains(userId),
+                                          onChanged: (bool newValue) {
+                                            setState(() {
+                                              if (newValue) {
+                                                // add to sharedWith
+                                                sharedUserIds.add(userId);                                              
+                                              } else {
+                                                // remove from sharedWith
+                                                sharedUserIds.remove(userId);
+                                              }
+                                            });
+                                          },
+                                        ); 
+                                      }
+                                    )
+                                  );
+                                }
+                                return Column(
+                                  children: sharedUserList,
+                                );
+                              }
+                            ),
                     // 儲存按鈕
                     Center(
                       child: ElevatedButton(

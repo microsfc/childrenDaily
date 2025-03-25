@@ -10,6 +10,7 @@ class BabyRecord {
   final List<String> tags; // 標籤
   final String height; // 身高
   final String weight; // 體重
+  final List<String> sharedIds;
 
   BabyRecord({
     required this.id,
@@ -21,6 +22,7 @@ class BabyRecord {
     required this.vaccineStatus,
     required this.height,
     required this.weight,
+    required this.sharedIds,
   });
 
   // 將 Firebase 讀出的資料轉成 Model
@@ -35,6 +37,7 @@ class BabyRecord {
       vaccineStatus: map['vaccineStatus'],
       height: map['height'],
       weight: map['weight'],
+      sharedIds: List<String>.from(map['sharedIds'] ?? []),
     );
   }
 
@@ -49,6 +52,7 @@ class BabyRecord {
       'vaccineStatus': vaccineStatus,
       'height': height,
       'weight': weight,
+      'sharedIds': sharedIds,
     };
   }
 }
