@@ -201,23 +201,6 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
           title: Text(barTitle),
           automaticallyImplyLeading: false,          
           actions: [
-            Row(
-              children: [
-                Text(currentUser?.displayName ?? '',
-                    style: const TextStyle(fontSize: 16)),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: NetworkImage(currentUser!.profileImageUrl),
-                  // child: const Icon(Icons.person, size: 18, color: Colors.white)
-                  ),
-                const SizedBox(width: 8),
-                IconButton(onPressed: () async { 
-                    await FirebaseAuth.instance.signOut();
-                    Navigator.of(context).pushNamed('/');
-                  }, icon: const Icon(Icons.logout)),
-              ],
-            ),
             Consumer<AppState>(
               builder: (context, appState, child) {
                 if (appState.selectedRecordIDs.isNotEmpty) {
@@ -243,6 +226,23 @@ class _TimelinePageState extends State<TimelinePage> with RouteAware {
                 }
                 return const SizedBox();
               },
+            ),
+            Row(
+              children: [
+                Text(currentUser?.displayName ?? '',
+                    style: const TextStyle(fontSize: 16)),
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage(currentUser!.profileImageUrl),
+                  // child: const Icon(Icons.person, size: 18, color: Colors.white)
+                  ),
+                const SizedBox(width: 8),
+                IconButton(onPressed: () async { 
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context).pushNamed('/');
+                  }, icon: const Icon(Icons.logout)),
+              ],
             ),
           ],
         ),

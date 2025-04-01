@@ -1,6 +1,7 @@
 import 'dart:io';
 import '../models/baby_record.dart';
 import '../models/measurement.dart';
+import '../models/record_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/storage_service.dart';
@@ -36,6 +37,9 @@ class _AddRecordPageState extends State<AddRecordPage> {
   final _vaccController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
+  final CollectionReference _heighWeightCollection = 
+      FirebaseFirestore.instance.collection('height_weight');
+
 
   @override
   void initState() {
@@ -90,7 +94,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
             : [];
 
         final babyRecord = BabyRecord(
-            id: '',
+            id: updateId != '' ? updateId : '',
             uid: userId,
             date: _selectedDay!,
             photoUrl: photoUrl ?? '',
@@ -102,16 +106,48 @@ class _AddRecordPageState extends State<AddRecordPage> {
             sharedIds: sharedUserIds);
         // 將紀錄存入 Firestore
         await firestoreService.addOrUpdateRecord(babyRecord);
-        final heightWeightMes = Measurement(
-            id: updateId,
-            uid: userId,
-            date: _selectedDay!,
-            height: double.tryParse(_heightController.text) ?? 0.0,
-            weight: double.tryParse(_weightController.text) ?? 0.0);
-        // 將身高體重存入 Firestore
-        await firestoreService.addOrUpdateHeightWeight(heightWeightMes);
+        final heighWeightSnapShot = await _heighWeightCollection
+            .where('uid', isEqualTo: userId)
+            .where('date', isEqualTo: _selectedDay)
+            .get();
+        if (heighWeightSnapShot.docs.isNotEmpty) {  
+          final docId = heighWeightSnapShot.docs.first.id;
+          await _heighWeightCollection.doc(docId).update({
+            'height': double.tryParse(_heightController.text) ?? 0.0,
+            'weight': double.tryParse(_weightController.text) ?? 0.0,
+          });
+        } else {
+          // 如果沒有資料，則新增
+          await _heighWeightCollection.add({
+            'uid': userId,
+            'date': _selectedDay,
+            'height': double.tryParse(_heightController.text) ?? 0.0,
+            'weight': double.tryParse(_weightController.text) ?? 0.0,
+          });
+        }
+
+        // final heightWeightMes = Measurement(
+        //     id: updateId != '' ? updateId : '',
+        //     uid: userId,
+        //     date: _selectedDay!,
+        //     height: double.tryParse(_heightController.text) ?? 0.0,
+        //     weight: double.tryParse(_weightController.text) ?? 0.0);
+        // // 將身高體重存入 Firestore
+        // await firestoreService.addOrUpdateHeightWeight(heightWeightMes);
         appState.setIsLoading(false);
-        nav.pop();
+        RecordDetail recordDetail  = RecordDetail(
+          dateTime: _selectedDay!,
+          photoUrl: photoUrl ?? '',
+          note: _noteController.text,
+          tags: tagsLst,
+          vaccineStatus: _vaccController.text,
+          height: _heightController.text,
+          weight: _weightController.text,
+          sharedIds: sharedUserIds,
+        );
+
+        nav.pop(recordDetail);
+
       } catch (e) {
         appState.setIsLoading(false);
       }
@@ -137,6 +173,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
       sharedUserIds = widget.record?.sharedIds ?? [];
       title = S.of(context).editBabyRecord;
     } else {
+      sharedUserIds.add(userId);
       title = S.of(context).addBabyRecord;
     }
 
@@ -279,10 +316,14 @@ class _AddRecordPageState extends State<AddRecordPage> {
                                             setState(() {
                                               if (newValue) {
                                                 // add to sharedWith
-                                                sharedUserIds.add(userId);                                              
+                                                if (!sharedUserIds.contains(userId)) {
+                                                  sharedUserIds.add(userId);
+                                                }
                                               } else {
                                                 // remove from sharedWith
-                                                sharedUserIds.remove(userId);
+                                                if (sharedUserIds.contains(userId)) {
+                                                  sharedUserIds.remove(userId);
+                                                }
                                               }
                                             });
                                           },
@@ -296,6 +337,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                                 );
                               }
                             ),
+                    const SizedBox(height: 16),
                     // 儲存按鈕
                     Center(
                       child: ElevatedButton(

@@ -34,6 +34,34 @@ class AuthService {
       // 4) 使用 GoogleAuthCredential 登入 Firebase
       final UserCredential userCredential =
           await _auth.signInWithCredential(credential);
+      if (userCredential.user != null) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('email', userCredential.user!.email!);
+        prefs.setString('uid', userCredential.user!.uid);
+        final appState = AppState();
+        appState.setUserId(userCredential.user!.uid);
+        // 從Firestore獲取用戶詳細信息
+          final QuerySnapshot<Object?> recordsSnapshot;
+          
+          recordsSnapshot = await FirestoreService().getUser(userCredential.user!.uid);
+          final List<AppUser> user = recordsSnapshot.docs
+              .map((doc) => AppUser.fromMap(doc.data() as Map<String, dynamic>, userCredential.user!.uid))
+              .toList();
+          if (user.isNotEmpty) {
+            appState.setUser(user[0]);
+          } else {
+            // 如果用戶不存在，則創建新用戶
+            // 登錄成功後，獲取FCM令牌
+            String? token = await _messaging.getToken();
+            await FirestoreService().addUser(AppUser(
+              uid: userCredential.user!.uid,
+              email: userCredential.user!.email!,
+              displayName: userCredential.user!.displayName!,
+              profileImageUrl: userCredential.user!.photoURL!,
+              fcmToken: token!,
+            ));
+          }
+      }
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       print('Sign in error: ${e.code}');

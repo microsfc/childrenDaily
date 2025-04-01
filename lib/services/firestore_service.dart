@@ -45,9 +45,9 @@ class FirestoreService {
   }
 
   // 新增或更新身高體重
-  Future<void> addOrUpdateHeightWeight(Measurement heightWeightMes) async {
+  Future<void> addOrUpdateHeightWeight(Measurement heightWeightMes, bool update, int docId) async {
 
-    if (heightWeightMes.id.isEmpty) {
+    if (!update) {
       // 新增
       await _heightWeightCollection.add(heightWeightMes.toMap()); 
     } else {

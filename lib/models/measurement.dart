@@ -18,7 +18,6 @@ class Measurement {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'uid': uid,
       'date': date,
       'height': height,

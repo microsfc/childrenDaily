@@ -126,6 +126,15 @@ class _AuthCardState extends State<AuthCard> {
     final User? user = await authService.signInWithGoogle();
     if (!mounted) return;
     if (user != null) {
+        final appState = Provider.of<AppState>(context, listen: false);
+        appState.currentUser = AppUser(
+          uid: user.uid,
+          email: user.email!,
+          displayName: user.displayName!,
+          profileImageUrl: user.photoURL!,
+          fcmToken: '',
+        );
+
         Navigator.of(context).pushNamed(HomePage.routeName);
     } else {
       if (!mounted) return;

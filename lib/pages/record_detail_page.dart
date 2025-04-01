@@ -1,15 +1,47 @@
 import 'zoomable_photo_page.dart';
 import './../models/baby_record.dart';
+import '../models/record_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:children/generated/l10n.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class RecordDetailPage extends StatelessWidget {
-  const RecordDetailPage({Key? key, required this.record}) : super(key: key);
-
-  static const routeName = '/record_detail';
+class RecordDetailPage extends StatefulWidget {
   final BabyRecord record;
+  const RecordDetailPage({super.key, required this.record});
+  static const routeName = '/record_detail';
+
+  @override
+  State<RecordDetailPage> createState() => _RecordDetailPageState();
+}
+
+class _RecordDetailPageState extends State<RecordDetailPage> {
+  late String dateTime;
+  late String noteDesc;
+  late String vaccineText;
+  late String heightText;
+  late String weightText;
+  var tags = [];
+  late String photoUrl;
+  late String heroTag;
+
+  @override
+  void initState() {
+    super.initState();
+    // 初始化資料
+    dateTime = widget.record.date.toLocal().toString().split(' ')[0];
+    noteDesc = widget.record.note.isNotEmpty ? widget.record.note : S.of(context).noNote;
+    vaccineText = widget.record.vaccineStatus.isNotEmpty
+        ? widget.record.vaccineStatus
+        : 'No Data';
+    heightText =
+        widget.record.height.isNotEmpty ? '${widget.record.height} (kg)' : 'No height';
+    weightText =
+        widget.record.weight.isNotEmpty ? '${widget.record.weight} (cm)' : 'No weight';
+    photoUrl = widget.record.photoUrl;
+    tags = widget.record.tags;
+    heroTag = 'recordPhoto_${widget.record.id}';
+  }
 
   Future<void> confirmDeleteRecord(BuildContext context) async {
     // 彈出確認刪除的 dialog
@@ -38,22 +70,12 @@ class RecordDetailPage extends StatelessWidget {
   Future<void> deleteRecord() async {
     await FirebaseFirestore.instance
         .collection('baby_records')
-        .doc(record.id)
+        .doc(widget.record.id)
         .delete();
   }
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = record.date.toLocal().toString().split(' ')[0];
-    final noteDesc = record.note.isNotEmpty ? record.note : S.of(context).noNote;
-    final vaccineText = record.vaccineStatus.isNotEmpty
-        ? record.vaccineStatus
-        : 'No Data';
-    final heightText =
-        record.height.isNotEmpty ? '${record.height} (kg)' : 'No height';
-    final weightText =
-        record.weight.isNotEmpty ? '${record.weight} (cm)' : 'No weight';
-
     return Scaffold(
         appBar: AppBar(
           title: Text(S.of(context).recordDetail),
@@ -64,22 +86,22 @@ class RecordDetailPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // show photo if available
-              if (record.photoUrl.isNotEmpty) ...[ 
+              if (photoUrl.isNotEmpty) ...[ 
                 Hero(
-                  tag: 'recordPhoto_${record.id}',
+                  tag: heroTag,
                   child: GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => ZoomablePhotoPage(
-                            imageUrl: record.photoUrl,
-                            heroTag: 'recordPhoto_${record.id}',
+                            imageUrl: photoUrl,
+                            heroTag: heroTag,
                           ),
                         ),
                       );
                     },
-                    child: CachedNetworkImage(imageUrl: record.photoUrl,
+                    child: CachedNetworkImage(imageUrl: photoUrl,
                   placeholder: (context, url) => CircularProgressIndicator(),
                   memCacheWidth: 200,
                   errorWidget:(context, url, error) => Icon(Icons.error),
@@ -88,7 +110,7 @@ class RecordDetailPage extends StatelessWidget {
                 )
               ],
               // date,
-              Text('${S.of(context).selectDate}: $dateStr',
+              Text('${S.of(context).selectDate}: $dateTime',
                   style: Theme.of(context).textTheme.titleLarge),
               SizedBox(height: 16),
               // vaccine status
@@ -104,8 +126,8 @@ class RecordDetailPage extends StatelessWidget {
               Text('${S.of(context).diary}: $noteDesc',
                   style: Theme.of(context).textTheme.bodyMedium),
               // tags
-              if (record.tags.isNotEmpty) ...[
-                Text('${S.of(context).tag} ${record.tags.join(', ')}',
+              if (tags.isNotEmpty) ...[
+                Text('${S.of(context).tag} ${tags.join(', ')}',
                     style: Theme.of(context).textTheme.bodyMedium),
               ],
               Row(
@@ -114,11 +136,30 @@ class RecordDetailPage extends StatelessWidget {
                   OutlinedButton.icon(
                     icon: Icon(Icons.edit),
                     label: Text(S.of(context).edit),
-                    onPressed: () {
-                      Navigator.of(context).pushNamed(
+                    onPressed: () async {
+                      final changeData = await Navigator.of(context).pushNamed(
                         '/add_record',
-                        arguments: record,
+                        arguments: widget.record,
                       );
+                      
+                      setState(() {
+                        // 更新顯示的資料                        
+                        if (changeData is RecordDetail) {
+                          dateTime = changeData.dateTime.toString().split(' ')[0];
+                          photoUrl = changeData.photoUrl;
+                          noteDesc = changeData.note.isNotEmpty ? changeData.note : S.of(context).noNote;
+                          vaccineText = changeData.vaccineStatus.isNotEmpty
+                              ? changeData.vaccineStatus
+                              : 'No Data';
+                          heightText =
+                              changeData.height.isNotEmpty ? '${changeData.height} (cm)' : 'No height';
+                          weightText =
+                              changeData.weight.isNotEmpty ? '${changeData.weight} (kg)' : 'No weight';
+                          tags = changeData.tags;
+                          // Update hero tag to force Hero widget to refresh
+                          heroTag = 'recordPhoto_${DateTime.now().millisecondsSinceEpoch}';
+                        }
+                      });
                     },
                   ),
                   OutlinedButton.icon(
