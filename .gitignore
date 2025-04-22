@@ -1,3 +1,5 @@
+node_modules/
+
 # Miscellaneous
 *.class
 *.log
@@ -33,6 +35,7 @@ migrate_working_dir/
 .pub/
 /build/
 
+
 # Symbolication related
 app.*.symbols
 
@@ -56,6 +59,7 @@ app.*.map.json
 **/.pub/
 **/.idea/
 **/generated_plugin_registrant.dart
+**/.node_modules/
 
 # Flutter build output
 build/
