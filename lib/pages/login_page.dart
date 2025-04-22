@@ -123,6 +123,9 @@ class _AuthCardState extends State<AuthCard> {
 
   void _signInWithGoogle() async {
     final authService = Provider.of<AuthService>(context, listen: false);
+    setState(() {
+      _isLoading = true;
+    });
     final User? user = await authService.signInWithGoogle();
     if (!mounted) return;
     if (user != null) {
@@ -134,28 +137,32 @@ class _AuthCardState extends State<AuthCard> {
           profileImageUrl: user.photoURL!,
           fcmToken: '',
         );
-
         Navigator.of(context).pushNamed(HomePage.routeName);
     } else {
+      setState(() {
+          _isLoading = false;
+        });
       if (!mounted) return;
       errorDialog.showErrorDialog(context, 'Sign in with Google failed');
     }
   }
 
   Future <void> _submit() async {
-    final firestoreService = Provider.of<FirestoreService?>(context, listen: false);
-
     if (!_formKey.currentState!.validate()) {
       // Invalid!
       return;
     }
     _formKey.currentState!.save();
 
-    setState(() {
-      _isLoading = true;
-    });
+    // Add a small delay to ensure setState is processed
+    await Future.delayed(Duration(milliseconds: 100));
+
     try {
+      final firestoreService = Provider.of<FirestoreService?>(context, listen: false);
       final authService = Provider.of<AuthService>(context, listen: false);
+      setState(() {
+      _isLoading = true;
+      });
       authService
           .signInWithEmailAndPassword(
               _emailController.text, _passwordController.text)
@@ -179,12 +186,14 @@ class _AuthCardState extends State<AuthCard> {
     } catch (e) {
       if (!mounted) return;
       errorDialog.showErrorDialog(context, 'Login failed = ${e.toString()}');
+    } finally {
+      // Only set loading to false if the widget is still mounted
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
-
-    print(_authData);
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   Widget build(BuildContext context) {
