@@ -151,12 +151,12 @@ class FirestoreService {
         .where('sharedIds', arrayContains: uid)
         .orderBy('date', descending: true);
 
-    if (lastDocument != null) {
-      query = query.startAfterDocument(lastDocument);
-    }
+    // if (lastDocument != null) {
+    //   query = query.startAfterDocument(lastDocument);
+    // }
 
     final snapshot = await query
-        .limit(limit)
+        // .limit(limit)
         .get();
     return snapshot;
   }

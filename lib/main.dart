@@ -12,6 +12,8 @@ import 'package:provider/provider.dart';
 import 'services/firestore_service.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
+import 'package:children/bloc/record_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -89,6 +91,11 @@ class MyApp extends StatelessWidget {
         StreamProvider<User?>.value(
           value: FirebaseAuth.instance.authStateChanges(),
           initialData: FirebaseAuth.instance.currentUser,
+        ),
+        BlocProvider<RecordBloc>(
+          create: (context) => RecordBloc(
+            firestoreService: context.read<FirestoreService>(),
+          ),
         ),
       ],
       child: MaterialApp(

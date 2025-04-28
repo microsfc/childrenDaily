@@ -2,9 +2,14 @@ import 'zoomable_photo_page.dart';
 import './../models/baby_record.dart';
 import '../models/record_detail.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
+import 'package:children/bloc/record_bloc.dart';
+import 'package:children/bloc/record_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+
 
 class RecordDetailPage extends StatefulWidget {
   final BabyRecord record;
@@ -54,7 +59,10 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
               onPressed: () => Navigator.of(context).pop(), child: Text(S.of(context).cancel)),
           TextButton(
               onPressed: () => {
-                    deleteRecord(),
+                    // 刪除資料
+                    context.read()<RecordBloc>().add(
+                      DeleteRecordEvent(widget.record.id, AppState.of(context).uid),
+                    ),
                     Navigator.of(context).pop(),
                     Navigator.of(context).pop(),
                     ScaffoldMessenger.of(context).showSnackBar(

@@ -10,7 +10,10 @@ import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
 import 'package:children/pages/home_page.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:children/bloc/record_bloc.dart';
+import 'package:children/bloc/record_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 
 
@@ -105,7 +108,15 @@ class _AddRecordPageState extends State<AddRecordPage> {
             tags: tagsLst,
             sharedIds: sharedUserIds);
         // 將紀錄存入 Firestore
-        await firestoreService.addOrUpdateRecord(babyRecord);
+        setState(() {
+          context.read<RecordBloc>().add(
+            AddOrUpdateRecordEvent(
+              babyRecord
+            ),
+          );
+        });
+        
+        // await firestoreService.addOrUpdateRecord(babyRecord);
         final heighWeightSnapShot = await _heighWeightCollection
             .where('uid', isEqualTo: userId)
             .where('date', isEqualTo: _selectedDay)
@@ -177,7 +188,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
       title = S.of(context).addBabyRecord;
     }
 
-    return Scaffold(
+    return 
+    Scaffold(
       appBar: AppBar(
         title: Text(title),
         leading: IconButton(

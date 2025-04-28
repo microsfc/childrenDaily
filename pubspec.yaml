@@ -66,6 +66,7 @@ dependencies:
   flutter_neat_and_clean_calendar: ^0.4.16
   flutter_local_notifications: ^18.0.1
   firebase_messaging: ^15.2.4
+  flutter_bloc: ^9.1.0
 
 dev_dependencies:
   commitlint_cli: ^0.8.1

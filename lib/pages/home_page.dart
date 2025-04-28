@@ -10,11 +10,15 @@ import 'package:provider/provider.dart';
 import 'package:animations/animations.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/models/appuser.dart';
+import 'package:children/bloc/record_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:children/bloc/record_event.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:children/services/firestore_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 
 
 
@@ -201,7 +205,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final appState = AppState.of(context);
+    return BlocProvider(
+      create: (_) => RecordBloc(firestoreService: FirestoreService())..add(LoadRecordEvent(appState.currentUser!.uid, false, '')),
+      child: Scaffold(
       body: PageTransitionSwitcher(
         transitionBuilder: (child, animation, secondaryAnimation) =>
             //     FadeThroughTransition(
@@ -245,6 +252,6 @@ class _HomePageState extends State<HomePage> {
         onDestinationSelected: _onItemTapped,
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
       ),
-    );
+    ));
   }
 }
