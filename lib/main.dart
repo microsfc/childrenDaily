@@ -25,9 +25,12 @@ import 'package:children/state/AppState.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:children/services/calendar_service.dart';
 import 'package:children/services/firestore_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:children/repositories/calendar_repository.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 
 
@@ -77,6 +80,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: locator<AppState>()),
         Provider<StorageService>(create: (_) => FirebaseStorageService(FirebaseStorage.instance)),
         Provider<FirestoreService>(create: (_) => FirestoreService()),
+        Provider<CalendarService>(create: (_) => CalendarServiceImpl(locator<CalendarRepository>())),
       ],
       child: MaterialApp(
         title: 'Baby Growth Tracker',

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/calendar_event.dart';
 import '../services/calendar_service.dart';
-import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 
 class CalendarState extends ChangeNotifier {
   final CalendarService _calendarService;

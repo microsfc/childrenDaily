@@ -3,12 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import '../models/calendar_event.dart';
 import 'package:provider/provider.dart';
-import '../services/calendar_service2.dart';
+import '../services/calendar_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // 導入 Flutter Local Notifications
 
 class CalendarEventPage extends StatefulWidget {
   const CalendarEventPage({super.key});
