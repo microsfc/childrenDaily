@@ -44,4 +44,39 @@ class CalendarEvent {
       'creatorId': creatorId,
     };
   }
+
+  CalendarEvent
+  copyWith({
+    String? id,
+    String? title,
+    String? description,
+    DateTime? startTime,
+    DateTime? endTime,
+    String? creatorId,
+    List<String>? sharedWith,
+  }) {
+    return CalendarEvent(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      creatorId: creatorId ?? this.creatorId,
+      sharedWith: sharedWith ?? this.sharedWith,
+    );
+  }
+
+
+  //isSharedWith checks if the event is shared with a specific user
+  bool isSharedWith(String userId) => creatorId == userId || sharedWith.contains(userId);
+  String get formattedTimeRange => '${_formatDateTime(startTime)} - ${_formatDateTime(endTime)}';
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+  
+  bool isOnSameDay(DateTime date) {
+    return startTime.year == date.year &&
+           startTime.month == date.month &&
+           startTime.day == date.day;
+  }
 }

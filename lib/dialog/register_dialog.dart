@@ -29,6 +29,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _displayNameController.dispose();
     super.dispose();
   }
 

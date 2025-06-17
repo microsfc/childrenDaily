@@ -29,14 +29,14 @@ class BabyRecord {
   factory BabyRecord.fromMap(Map<String, dynamic> map, String documentId) {
     return BabyRecord(
       id: documentId,
-      uid: map['uid'],
+      uid: map['uid'] as String,
       date: (map['date'] as Timestamp).toDate(),
-      photoUrl: map['photoUrl'],
-      note: map['note'],
-      tags: List<String>.from(map['tags']),
-      vaccineStatus: map['vaccineStatus'],
-      height: map['height'],
-      weight: map['weight'],
+      photoUrl: map['photoUrl'] as String? ?? '',
+      note: map['note'] as String? ?? '',
+      tags: List<String>.from(map['tags'] ?? []),
+      vaccineStatus: map['vaccineStatus'] as String? ?? '',
+      height: map['height'] as String? ?? '',
+      weight: map['weight'] as String? ?? '',
       sharedIds: List<String>.from(map['sharedIds'] ?? []),
     );
   }
@@ -55,4 +55,50 @@ class BabyRecord {
       'sharedIds': sharedIds,
     };
   }
+
+  // Create a copy of the current instance with new values
+  BabyRecord copyWith({
+    String? id,
+    String? uid,
+    DateTime? date,
+    String? photoUrl,
+    String? note,
+    List<String>? tags,
+    String? vaccineStatus,
+    String? height,
+    String? weight,
+    List<String>? sharedIds,
+  }) {
+    return BabyRecord(
+      id: id ?? this.id,
+      uid: uid ?? this.uid,
+      date: date ?? this.date,
+      photoUrl: photoUrl ?? this.photoUrl,
+      note: note ?? this.note,
+      tags: tags ?? this.tags,
+      vaccineStatus: vaccineStatus ?? this.vaccineStatus,
+      height: height ?? this.height,
+      weight: weight ?? this.weight,
+      sharedIds: sharedIds ?? this.sharedIds,
+    );
+  }
+
+  // Helper function for formatted data
+  String get formattedDate {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+  String get formattedTime {
+    return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+  bool get hasPhoto => photoUrl.isNotEmpty;
+  bool get hasNote => note.isNotEmpty;
+  bool get hasTags => tags.isNotEmpty;
+  bool get hasVaccineStatus => vaccineStatus.isNotEmpty;
+  bool get hasHeight => height.isNotEmpty;
+  bool get hasWeight => weight.isNotEmpty;
+  bool get hasSharedIds => sharedIds.isNotEmpty;
+  String get formattedTags => tags.join(', ');
+
+
+
 }

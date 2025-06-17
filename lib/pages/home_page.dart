@@ -1,8 +1,7 @@
 import 'dart:convert';
-import './timeline_page.dart';
+import 'timeline_page.dart';
 import './calendar_page.dart';
 import './add_record_page.dart';
-import '../generated/l10n.dart';
 import './calendarEvent_page.dart';
 import './height_weight_chart.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:animations/animations.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/models/appuser.dart';
+import 'package:children/state/auth_state.dart';
 import 'package:children/bloc/record_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:children/bloc/record_event.dart';
@@ -18,6 +18,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:children/services/firestore_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 
 
 
@@ -35,7 +36,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   static const routeName = '/home';
 
@@ -61,6 +62,8 @@ class _HomePageState extends State<HomePage> {
     setupInteractedMessage();
     // 請求權限並獲取Token
     requestPermissionAndGetToken();
+
+    _setupFCM();
     
     // 監聽 token 刷新事件
     FirebaseMessaging.instance.onTokenRefresh.listen((String token) async {
@@ -137,8 +140,8 @@ class _HomePageState extends State<HomePage> {
       print('FCM Token: $token');
       User? currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null && token != null) {
-        final appState = AppState.of(context);
-        AppUser? updateUser = appState.currentUser;
+        final authState = Provider.of<AuthState>(context, listen: false);
+        AppUser? updateUser = authState.currentUser;
         updateUser!.fcmToken = token;
 
         await FirebaseFirestore.instance
@@ -194,7 +197,15 @@ class _HomePageState extends State<HomePage> {
 
     // 設置通知點擊處理器（當應用在背景但未終止時）
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
 
+  Future<void> _setupFCM() async {
+    // Request FCM token and update user
+    final token = await FirebaseMessaging.instance.getToken();
+    if (token != null) {
+      final authState = Provider.of<AuthState>(context, listen: false);
+      authState.updateFcmToken(token);
+    }
   }
 
   void _onItemTapped(int index) {

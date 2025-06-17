@@ -2,7 +2,6 @@ import '../models/baby_record.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:children/bloc/record_event.dart';
 import 'package:children/bloc/record_state.dart';
-import 'package:children/models/baby_record.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:children/services/firestore_service.dart';
 

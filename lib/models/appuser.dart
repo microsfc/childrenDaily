@@ -23,20 +23,6 @@ class AppUser {
       profileImageUrl: map['profileImageUrl'] as String? ?? 'No Image',
       fcmToken: map['fcmToken'] as String ?? 'No Token',
     );
-    // print('Raw Firestore Data: $map');  
-    // final user = AppUser(
-    //   uid: map['uid'] as String? ?? userId,
-    //   email: map['email'] as String? ?? 'No Email',
-    //   displayName: map['displayName'] as String? ?? 'No Name',
-    // );
-    // print('Mapped User: ${user.uid}, ${user.email}, ${user.displayName}');  
-    // final user2 = AppUser(
-    //   uid: userId,
-    //   email: map['email'] as String? ?? 'No Email',
-    //   displayName: map['displayName'] as String? ?? 'No Name',
-    // );
-    // print('Mapped User2: ${user2.uid}, ${user2.email}, ${user2.displayName}');  
-    // return user;
   }
 
    Map<String, dynamic> toMap(){
@@ -48,4 +34,37 @@ class AppUser {
       'fcmToken': fcmToken,
     };
    }
+
+  AppUser copyWith({
+    String? uid,
+    String? email,
+    String? displayName,
+    String? profileImageUrl,
+    String? fcmToken,
+  }) {
+
+    return AppUser(
+      uid: uid ?? this.uid,
+      email: email ?? this.email,
+      displayName: displayName ?? this.displayName,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      fcmToken: fcmToken ?? this.fcmToken,
+    );
+  }
+
+  bool get hasProfileImage {
+    return profileImageUrl.isNotEmpty;
+  }
+
+  String get initials {
+    if (displayName.isEmpty) return '';
+    final parts = displayName.split(' ');
+    if (parts.length > 1) {
+      return '${parts.first[0]}${parts.last[0]}';
+    } else if (parts.isNotEmpty) {
+      return parts.first[0];
+    }
+    return '';
+  }
+
 }

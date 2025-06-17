@@ -11,9 +11,9 @@ class GrowthChartPage extends StatefulWidget {
   static const routeName = '/growth_chart';
 
   const GrowthChartPage({
-    Key? key,
+    super.key,
     required this.rangeInYears,
-  }) : super(key: key);
+  });
 
   @override
   State<GrowthChartPage> createState() => _GrowthChartPageState();
