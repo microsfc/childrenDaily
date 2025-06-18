@@ -93,7 +93,8 @@ class FirestoreService {
 
   // 取得所有 BabyRecord (依日期排序)
   Stream<List<BabyRecord>> getBabyRecords(String uid) {
-    return _babyRecordsCollection
+    try {
+      return _babyRecordsCollection
          .where('sharedIds', arrayContains: uid)
         .orderBy('date', descending: true)
         .snapshots()
@@ -102,7 +103,11 @@ class FirestoreService {
           .map((doc) =>
               BabyRecord.fromMap(doc.data() as Map<String, dynamic>, doc.id))
           .toList();
-    });
+      });
+    } catch (e) {
+      print('Error in getBabyRecords: $e');
+      return Stream.value([]);
+    }
   }
 
   // 取得所有 Measurement (依日期排序)

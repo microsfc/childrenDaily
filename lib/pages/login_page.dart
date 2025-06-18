@@ -62,6 +62,7 @@ class _LoginPageState extends State<LoginPage> {
         // Update the auth state with the logged in user
           final authState = Provider.of<AuthState>(context, listen: false);
           authState.setUser(result.data!);
+          
         
           // Navigate to home page
           Navigator.of(context).pushReplacementNamed(HomePage.routeName);

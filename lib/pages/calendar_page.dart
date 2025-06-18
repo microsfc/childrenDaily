@@ -3,12 +3,10 @@ import '../models/baby_record.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/firestore_service.dart';
-import 'package:children/state/AppState.dart';
 import 'package:children/pages/home_page.dart';
+import 'package:children/state/auth_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:table_calendar/table_calendar.dart';
-
-
 
 
 class CalendarPage extends StatefulWidget {
@@ -31,9 +29,8 @@ class _CalendarPageState extends State<CalendarPage> {
   void initState() {
     super.initState();
     _focusedDate = ValueNotifier(DateTime.now());
-    final appState = AppState.of(context);
-    userId = appState.uid;
-
+    final authState = AuthState.of(context);
+    userId = authState.uid;
   }
 
   @override
