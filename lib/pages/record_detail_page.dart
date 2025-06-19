@@ -7,8 +7,10 @@ import 'package:children/state/AppState.dart';
 import 'package:children/generated/l10n.dart';
 import 'package:children/bloc/record_bloc.dart';
 import 'package:children/bloc/record_event.dart';
+import 'package:children/pages/add_record_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+
 
 
 class RecordDetailPage extends StatefulWidget {
@@ -145,9 +147,15 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                     icon: Icon(Icons.edit),
                     label: Text(S.of(context).edit),
                     onPressed: () async {
-                      final changeData = await Navigator.of(context).pushNamed(
-                        '/add_record',
-                        arguments: widget.record,
+                      // final changeData = await Navigator.of(context).pushNamed(
+                      //   '/add_record',
+                      //   arguments: widget.record,
+                      // );
+
+                      final changeData = await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (ctx) => AddRecordPage(record: widget.record),
+                        ),
                       );
                       
                       setState(() {
