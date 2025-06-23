@@ -1,4 +1,5 @@
 import '../models/appuser.dart';
+import '../models/user_model.dart';
 import 'package:children/generated/l10n.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -10,6 +11,7 @@ abstract class UserRepository {
   Future<List<AppUser>> getAllUsers();
   Future<void> deleteUser(String id);
   Future<void> updateFCMToken(String userId, String fcmToken);
+  Stream<List<User>> getUsersStream();
 }
 
 class FirestoreUserRepository implements UserRepository {
@@ -75,5 +77,16 @@ class FirestoreUserRepository implements UserRepository {
     } else {
       throw Exception(S.current.noRecordFound);
     }
+  }
+
+  /// Returns a stream of [User] lists from the 'users' collection
+  @override
+  Stream<List<User>> getUsersStream() {
+    return _firestore
+        .collection('users')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => User.fromDocument(doc))
+            .toList());
   }
 }

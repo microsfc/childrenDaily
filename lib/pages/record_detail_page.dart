@@ -160,8 +160,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                       
                       setState(() {
                         // 更新顯示的資料                        
-                        if (changeData is RecordDetail) {
-                          dateTime = changeData.dateTime.toString().split(' ')[0];
+                          dateTime = changeData.date.toString().split(' ')[0];
                           photoUrl = changeData.photoUrl;
                           noteDesc = changeData.note.isNotEmpty ? changeData.note : S.of(context).noNote;
                           vaccineText = changeData.vaccineStatus.isNotEmpty
@@ -175,7 +174,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                           // Update hero tag to force Hero widget to refresh
                           heroTag = 'recordPhoto_${DateTime.now().millisecondsSinceEpoch}';
                         }
-                      });
+                      );
                     },
                   ),
                   OutlinedButton.icon(

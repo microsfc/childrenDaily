@@ -10,6 +10,10 @@ import 'package:children/models/appuser.dart';
 import 'package:children/state/auth_state.dart';
 import 'package:image_picker/image_picker.dart';
 import '../viewmodel/add_record_viewmodel.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:children/viewmodel/share_viewmodel.dart';
+import 'package:children/repositories/user_repository.dart';
+
 
 
 
@@ -131,35 +135,43 @@ class _AddRecordPageState extends State<AddRecordPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Form(
                   key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDatePicker(viewModel),
-                      const SizedBox(height: 16),
-                      _buildImagePicker(viewModel),
-                      const SizedBox(height: 16),
-                      _buildFormFields(),
-                      const SizedBox(height: 24),
-                      _buildSharedUsersList(viewModel),
-                      const SizedBox(height: 24),
-                      Center(
-                        child: AppButton(
-                          text: 'Save',
-                          onPressed: _saveRecord,
-                          icon: Icons.save,
+                  child: 
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.9, // for example
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min, // 也很重要，告訴 Column 只包裹內容高度
+                      children: [
+                        _buildDatePicker(viewModel),
+                        const SizedBox(height: 16),
+                        _buildImagePicker(viewModel),
+                        const SizedBox(height: 16),
+                        _buildFormFields(),
+                        const SizedBox(height: 24),
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: _buildSharedUsersList(viewModel),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+                        const SizedBox(height: 24),
+                        Center(
+                          child: AppButton(
+                            text: 'Save',
+                            onPressed: _saveRecord,
+                            icon: Icons.save,
+                          ),
+                         ),
+                     ],
+                   ),
+                 ),
+               ),
+             ),
+           ),
           );
-        },
-      ),
-    );
-  }
-  
+         },
+       ),
+     );
+   }
+
   Widget _buildDatePicker(AddRecordViewModel viewModel) {
     return Row(
       children: [
@@ -266,47 +278,40 @@ class _AddRecordPageState extends State<AddRecordPage> {
   }
   
   Widget _buildSharedUsersList(AddRecordViewModel viewModel) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Share with other users:',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        // We would use a StreamBuilder here to get users from Firestore
-        // This is simplified for example purposes
-        FutureBuilder<List<AppUser>>(
-          future: _fetchUsers(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Text('No users available to share with');
-            }
-            
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final user = snapshot.data![index];
-                
-                return SwitchListTile(
-                  title: Text(user.displayName),
-                  subtitle: Text(user.email),
-                  value: viewModel.sharedIds.contains(user.uid),
-                  onChanged: (value) {
-                    viewModel.setTags(user.uid);
-                  },
-                );
-              },
-            );
-          },
-        ),
-      ],
+    return ChangeNotifierProvider<ShareViewModel>(
+      create: (_) => ShareViewModel(userRepository: FirestoreUserRepository(FirebaseFirestore.instance)),
+      builder: (context, child) {
+        final vm = context.watch<ShareViewModel>();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                '分享給其他使用者:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Expanded(
+              child: vm.users.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView(
+                      children: vm.users.map((user) {
+                        final isShared = vm.sharedUserIds.contains(user.uid);
+                        return SwitchListTile(
+                          title: Text(user.displayName),
+                          value: isShared,
+                          onChanged: (newValue) {
+                            vm.toggleShared(user.uid, newValue);
+                          },
+                        );
+                      }).toList(),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
   
@@ -314,9 +319,4 @@ class _AddRecordPageState extends State<AddRecordPage> {
     return '${date.year}/${date.month}/${date.day}';
   }
   
-  // This would typically be handled by a repository/service in a real app
-  Future<List<AppUser>> _fetchUsers() async {
-    // Placeholder implementation - this would pull from your UserRepository
-    return [];
-  }
 }

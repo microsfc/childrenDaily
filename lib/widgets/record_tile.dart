@@ -30,6 +30,11 @@ class RecordTile extends StatelessWidget {
         onTap: () {
           if (onTap != null) {
             onTap!(record);
+          } else {
+            Navigator.of(context).pushNamed(
+              '/record_detail',
+              arguments: record,
+            );
           }
         },
         onLongPress: () {
