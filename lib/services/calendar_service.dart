@@ -1,5 +1,7 @@
 import '../models/calendar_event.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../repositories/calendar_repository.dart';
+
 
 abstract class CalendarService {
   Future<List<CalendarEvent>> getAllEvents(String userId);
@@ -13,6 +15,7 @@ abstract class CalendarService {
 
 class CalendarServiceImpl implements CalendarService {
   final CalendarRepository _repository;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   
   CalendarServiceImpl(this._repository);
   
@@ -61,9 +64,7 @@ class CalendarServiceImpl implements CalendarService {
   }
   
   @override
-  String? getCurrentUserId() {
-    // This would normally come from your AuthService
-    // For now, we'll return null
-    return null;
+   String? getCurrentUserId() {
+    return _auth.currentUser?.uid;
   }
 }

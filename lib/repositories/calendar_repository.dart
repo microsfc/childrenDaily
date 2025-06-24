@@ -116,14 +116,14 @@ class FirestoreCalendarRepository implements CalendarRepository {
 
   @override
   Stream<List<CalendarEvent>> getEventsStream(String userId) {
-    // Get events where user is the creator
-    final createdEventsStream = _firestore
-        .collection('calendar_events')
-        .where('creatorId', isEqualTo: userId)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id))
-            .toList());
+    // // Get events where user is the creator
+    // final createdEventsStream = _firestore
+    //     .collection('calendar_events')
+    //     .where('creatorId', isEqualTo: userId)
+    //     .snapshots()
+    //     .map((snapshot) => snapshot.docs
+    //         .map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id))
+    //         .toList());
     // Get events where user is a participant
     final sharedEventsStream = _firestore
         .collection('calendar_events')
@@ -132,13 +132,14 @@ class FirestoreCalendarRepository implements CalendarRepository {
         .map((snapshot) => snapshot.docs
             .map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id))
             .toList());
-    // Combine both streams
-    return createdEventsStream.asyncMap((createdEventsStream) async {
-      final sharedEvents = await sharedEventsStream.first;
-      final allEvents = [...createdEventsStream, ...sharedEvents];
-      // Sort events by start time
-      allEvents.sort((a, b) => a.startTime.compareTo(b.startTime));
-      return allEvents;
-    }); 
+    return sharedEventsStream;
+    // // Combine both streams
+    // return createdEventsStream.asyncMap((createdEventsStream) async {
+    //   final sharedEvents = await sharedEventsStream.first;
+    //   final allEvents = [...createdEventsStream, ...sharedEvents];
+    //   // Sort events by start time
+    //   allEvents.sort((a, b) => a.startTime.compareTo(b.startTime));
+    //   return allEvents;
+    // }); 
   }
 }       

@@ -159,7 +159,8 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                       );
                       
                       setState(() {
-                        // 更新顯示的資料                        
+                        // 更新顯示的資料   
+                        if (changeData != null && changeData is BabyRecord) {
                           dateTime = changeData.date.toString().split(' ')[0];
                           photoUrl = changeData.photoUrl;
                           noteDesc = changeData.note.isNotEmpty ? changeData.note : S.of(context).noNote;
@@ -173,8 +174,9 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                           tags = changeData.tags;
                           // Update hero tag to force Hero widget to refresh
                           heroTag = 'recordPhoto_${DateTime.now().millisecondsSinceEpoch}';
-                        }
-                      );
+                        }                    
+                       }
+                     );
                     },
                   ),
                   OutlinedButton.icon(

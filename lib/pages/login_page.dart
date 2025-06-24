@@ -79,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
         //   ErrorDialog(errorMessage: error.toString());
         // });
       } catch (error) {
-        ErrorDialog(errorMessage: error.toString());
+        ErrorDialog(errorMessage: error.toString()).showErrorDialog(context, error.toString());
       }
     }
   }

@@ -112,11 +112,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
     
     final record = await _viewModel.saveRecord(userId);
     
-    if (record != null) {
-      Navigator.of(context).pop(record);
-    } else if (_viewModel.error != null) {
-      ErrorHandler.show(context, _viewModel.error!);
-    }
+    Navigator.of(context).pop(record);
   }
   
   @override
