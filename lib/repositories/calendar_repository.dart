@@ -48,10 +48,10 @@ class FirestoreCalendarRepository implements CalendarRepository {
 
   @override
   Future<List<CalendarEvent>> getEvents(String userId) async {
-    final createdEventsSnapshot = await _firestore
-        .collection('calendar_events')
-        .where('creatorId', isEqualTo: userId)
-        .get();
+    // final createdEventsSnapshot = await _firestore
+    //     .collection('calendar_events')
+    //     .where('creatorId', isEqualTo: userId)
+    //     .get();
 
     // get events shared with the user
     final sharedEventSnapshot = await _firestore
@@ -59,11 +59,14 @@ class FirestoreCalendarRepository implements CalendarRepository {
         .where('sharedWith', arrayContains: userId)
         .get();
 
-    final allEvents = [
-      ...createdEventsSnapshot.docs.map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id)),
-      ...sharedEventSnapshot.docs.map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id)),
-    ];
+    // final allEvents = [
+    //   ...createdEventsSnapshot.docs.map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id)),
+    //   ...sharedEventSnapshot.docs.map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id)),
+    // ];
 
+    final allEvents = sharedEventSnapshot.docs
+        .map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id))
+        .toList();
     // Sort events by start time
     allEvents.sort((a, b) => a.startTime.compareTo(b.startTime));
     return allEvents;

@@ -22,12 +22,11 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
   CalendarService? _calendarService;
   List<CalendarEvent> _allEvents = []; // 儲存所有事件 (從 StreamBuilder 接收)
   List<NeatCleanCalendarEvent> _neatEvents = []; // flutter_neat_and_clean_calendar 的事件格式
-  
+
   @override
   void initState() {
     super.initState();
     _selectedDay = DateTime.now();
-    _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
     // _selectedEvents.value = _getEventsForDay(_selectedDay!);
     //  _requestPermissions();
     //  _configureForegroundAndBackgroundNotifications();
@@ -38,6 +37,19 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _calendarService = Provider.of<CalendarService>(context);
+    _initEvents();
+    _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
+    _buildEventList(_selectedDay!);
+  }
+
+  Future<void> _initEvents() async {
+    final userId = _calendarService?.getCurrentUserId();
+    if (_calendarService != null && userId != null) {
+      _allEvents = await _calendarService!.getAllEvents(userId);
+      setState(() {
+        _selectedEvents.value = _getEventsForDay(_selectedDay!);
+      });
+    }
   }
 
   @override
@@ -237,7 +249,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
   Future<CalendarEvent?> _showEditEventDialog(CalendarEvent eventToEdit) async {
     TextEditingController titleController = TextEditingController(text: eventToEdit.title);
     TextEditingController descriptionController = TextEditingController(text: eventToEdit.description);
-    List<String> selectedUsers = [];
+    List<String> selectedUsers = eventToEdit.sharedWith.toList(); // 複製共享用戶列表
     ValueNotifier<DateTime> startTimeNotifier = ValueNotifier(eventToEdit.startTime);
     ValueNotifier<DateTime> endTimeNotifier =  ValueNotifier(eventToEdit.endTime);
     
@@ -375,7 +387,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
                   startTime: startTimeNotifier.value,
                   endTime: endTimeNotifier.value,
                   creatorId: eventToEdit.creatorId, // 保留創建者 ID
-                  sharedWith: eventToEdit.sharedWith, // 保留共享用戶列表
+                  sharedWith: selectedUsers, // 保留共享用戶列表
                 );
                 Navigator.of(context).pop(updatedEvent);
               },
@@ -479,6 +491,7 @@ class _CalendarEventPageState extends State<CalendarEventPage> {
        _selectedEvents.value = _getEventsForDay(DateTime.now());
     } else {
       _selectedEvents.value = _getEventsForDay(selectedDay);
+      
     }
     
     return ValueListenableBuilder(
