@@ -31,6 +31,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
   var tags = [];
   late String photoUrl;
   late String heroTag;
+  late BabyRecord afterModifyRecord;
 
   @override
   void initState() {
@@ -48,6 +49,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
     photoUrl = widget.record.photoUrl;
     tags = widget.record.tags;
     heroTag = 'recordPhoto_${widget.record.id}';
+    afterModifyRecord = widget.record;
   }
 
   Future<void> confirmDeleteRecord(BuildContext context) async {
@@ -86,6 +88,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         appBar: AppBar(
           title: Text(S.of(context).recordDetail),
@@ -154,7 +157,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
                       final changeData = await Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (ctx) => AddRecordPage(record: widget.record),
+                          builder: (ctx) => AddRecordPage(record: afterModifyRecord),
                         ),
                       );
                       
@@ -174,6 +177,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                           tags = changeData.tags;
                           // Update hero tag to force Hero widget to refresh
                           heroTag = 'recordPhoto_${DateTime.now().millisecondsSinceEpoch}';
+                          afterModifyRecord = changeData; // 更新原始記錄
                         }                    
                        }
                      );

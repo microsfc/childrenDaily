@@ -105,6 +105,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
     _viewModel.setHeight(_heightController.text);
     _viewModel.setWeight(_weightController.text);
     _viewModel.setTags(_tagsController.text);
+
+    
     
     // Use AuthState to get user ID
     final authState = Provider.of<AuthState>(context, listen: false);
@@ -139,16 +141,16 @@ class _AddRecordPageState extends State<AddRecordPage> {
                       mainAxisSize: MainAxisSize.min, // 也很重要，告訴 Column 只包裹內容高度
                       children: [
                         _buildDatePicker(viewModel),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         _buildImagePicker(viewModel),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         _buildFormFields(),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 16),
                         Flexible(
                           fit: FlexFit.loose,
                           child: _buildSharedUsersList(viewModel),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 16),
                         Center(
                           child: AppButton(
                             text: 'Save',
@@ -278,9 +280,11 @@ class _AddRecordPageState extends State<AddRecordPage> {
       create: (_) => ShareViewModel(userRepository: FirestoreUserRepository(FirebaseFirestore.instance)),
       builder: (context, child) {
         final vm = context.watch<ShareViewModel>();
+        vm.sharedUserIds = viewModel.sharedIds.toSet();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -300,6 +304,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                           value: isShared,
                           onChanged: (newValue) {
                             vm.toggleShared(user.uid, newValue);
+                            viewModel.toggleShareUser(user.uid);
                           },
                         );
                       }).toList(),
