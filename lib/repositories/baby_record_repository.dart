@@ -1,10 +1,11 @@
 import '../models/baby_record.dart';
+import 'package:children/utils/type.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 abstract class BabyRecordRepository {
   Future<List<BabyRecord>> getRecords(String userId);
   Future<List<BabyRecord>> getRecordsByDate(String userId, DateTime date);
-  Future<List<BabyRecord>> getRecordsBatch({required String uid, int limit = 10, DocumentSnapshot? lastDocument});
+  Future<RecordsBatch> getRecordsBatch({required String uid, int limit = 10, DocumentSnapshot? lastDocument});
   Future<List<BabyRecord>> searchRecords(String userId, String keyword);
   Future<BabyRecord?> getRecordById(String id);
   Future<BabyRecord> addOrUpdateRecord(BabyRecord record);
@@ -31,7 +32,7 @@ class FirestoreBabyRecordRepository implements BabyRecordRepository {
   }
   
   @override
-  Future<List<BabyRecord>> getRecordsBatch({
+  Future<RecordsBatch> getRecordsBatch({
     required String uid, 
     int limit = 10, 
     DocumentSnapshot? lastDocument
@@ -46,14 +47,16 @@ class FirestoreBabyRecordRepository implements BabyRecordRepository {
     }
     
     try {
-     final snapshot = await query.get();
-    return snapshot.docs
-      .map((doc) => BabyRecord.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-      .toList();
+      final snapshot = await query.get();
+      final newLastDocument  = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+      final records = snapshot.docs
+        .map((doc) => BabyRecord.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
+      return RecordsBatch(records: records, lastDocument: newLastDocument);
     } catch (e, stack) {
       print('🔥 Firestore query error: $e');
       print(stack);
-      return [];
+      return RecordsBatch(records: [], lastDocument: null);
     }
   }
   
@@ -107,7 +110,7 @@ class FirestoreBabyRecordRepository implements BabyRecordRepository {
     if (record.id.isEmpty) {
       // Create new record
       final docRef = await _firestore.collection('baby_records').add(recordData);
-      return record.copyWith(id: docRef.id);
+    return record.copyWith(id: docRef.id);
     } else {
       // Update existing record
       await _firestore.collection('baby_records').doc(record.id).update(recordData);

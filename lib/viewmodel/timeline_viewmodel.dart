@@ -1,5 +1,6 @@
 import '../models/baby_record.dart';
 import 'package:flutter/material.dart';
+import 'package:children/utils/type.dart';
 import '../repositories/baby_record_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -50,6 +51,8 @@ class TimelineViewModel extends ChangeNotifier {
   }
   
   Future<void> loadRecords(String userId) async {
+    Ref<DocumentSnapshot> ref;
+  
     _isLoading = true;
     _error = null;
     _records = [];
@@ -59,10 +62,11 @@ class TimelineViewModel extends ChangeNotifier {
     
     try {
       if (_searchKeyword.isEmpty) {
-        final batch = await _repository.getRecordsBatch(uid: userId, limit: 10);
+        final batch = await _repository.getRecordsBatch(uid: userId, limit: 10, lastDocument: _lastDocument);
         
-        _records = batch;
-        _hasMoreData = batch.length >= 10;
+        _records = batch.records;
+        _lastDocument = batch.lastDocument;
+        _hasMoreData = batch.lastDocument != null;
       } else {
         _records = await _repository.searchRecords(userId, _searchKeyword);
         _hasMoreData = false;
@@ -88,8 +92,9 @@ class TimelineViewModel extends ChangeNotifier {
         lastDocument: _lastDocument
       );
       
-      _records.addAll(batch);
-      _hasMoreData = batch.length >= 10;
+      _records.addAll(batch.records);
+      _lastDocument = batch.lastDocument;
+      _hasMoreData = batch.lastDocument != null;
     } catch (e) {
       _error = e.toString();
     } finally {

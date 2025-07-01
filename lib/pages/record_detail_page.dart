@@ -122,27 +122,33 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                   ),
                 )
               ],
+              SizedBox(height: 20),
               // date,
               Text('${S.of(context).selectDate}: $dateTime',
                   style: Theme.of(context).textTheme.titleLarge),
-              SizedBox(height: 16),
+              SizedBox(height: 10),
               // vaccine status
               Text('${S.of(context).vaccineStatus}: $vaccineText',
-                  style: Theme.of(context).textTheme.bodyMedium),
+                  style: Theme.of(context).textTheme.bodyLarge),
+              SizedBox(height: 10),
               // height
               Text('${S.of(context).height}: $heightText',
-                  style: Theme.of(context).textTheme.bodyMedium),
+                  style: Theme.of(context).textTheme.bodyLarge),
+              SizedBox(height: 10),
               // weight
               Text('${S.of(context).weight}: $weightText',
-                  style: Theme.of(context).textTheme.bodyMedium),
+                  style: Theme.of(context).textTheme.bodyLarge),
+              SizedBox(height: 10),
               // note
               Text('${S.of(context).diary}: $noteDesc',
-                  style: Theme.of(context).textTheme.bodyMedium),
+                  style: Theme.of(context).textTheme.bodyLarge),
+              SizedBox(height: 10),
               // tags
               if (tags.isNotEmpty) ...[
                 Text('${S.of(context).tag} ${tags.join(', ')}',
-                    style: Theme.of(context).textTheme.bodyMedium),
+                    style: Theme.of(context).textTheme.bodyLarge),
               ],
+              SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -150,15 +156,9 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                     icon: Icon(Icons.edit),
                     label: Text(S.of(context).edit),
                     onPressed: () async {
-                      // final changeData = await Navigator.of(context).pushNamed(
-                      //   '/add_record',
-                      //   arguments: widget.record,
-                      // );
-
-                      final changeData = await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (ctx) => AddRecordPage(record: afterModifyRecord),
-                        ),
+                       final changeData = await Navigator.of(context).pushNamed(
+                        '/add_record',
+                        arguments: afterModifyRecord,
                       );
                       
                       setState(() {

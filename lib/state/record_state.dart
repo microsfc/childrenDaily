@@ -55,14 +55,10 @@ class RecordsState extends ChangeNotifier {
     try {
       final batch = await _repository.getRecordsBatch(uid: userId, limit: 10);
  
-      _records = batch;
-      _hasMoreData = batch.length >= 10;
+      _records = batch.records;
+      _hasMoreData = batch.lastDocument != null;
+      _lastDocument = batch.lastDocument;
       
-      if (batch.isNotEmpty) {
-        // This is a simplification - in reality, you would need to get the actual document reference
-        // We're assuming the batch contains DocumentSnapshots
-        _lastDocument = null; // You'd need to set this from your repository
-      }
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -85,13 +81,9 @@ class RecordsState extends ChangeNotifier {
         lastDocument: _lastDocument
       );
       
-      _records.addAll(batch);
-      _hasMoreData = batch.length >= 10;
-      
-      if (batch.isNotEmpty) {
-        // This is a simplification - in reality, you would need to get the actual document reference
-        _lastDocument = null; // You'd need to set this from your repository
-      }
+      _records.addAll(batch.records);
+      _hasMoreData = batch.lastDocument != null;
+      _lastDocument = batch.lastDocument;
     } catch (e) {
       _error = e.toString();
     } finally {

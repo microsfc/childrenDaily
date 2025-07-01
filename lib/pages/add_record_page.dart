@@ -11,8 +11,10 @@ import 'package:children/state/auth_state.dart';
 import 'package:image_picker/image_picker.dart';
 import '../viewmodel/add_record_viewmodel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:children/pages/record_detail_page.dart';
 import 'package:children/viewmodel/share_viewmodel.dart';
 import 'package:children/repositories/user_repository.dart';
+
 
 
 
@@ -113,7 +115,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
     final userId = authState.currentUser?.uid ?? '';
     
     final record = await _viewModel.saveRecord(userId);
-    
+
+    if (!mounted) return;
     Navigator.of(context).pop(record);
   }
   
@@ -135,7 +138,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                   key: _formKey,
                   child: 
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.9, // for example
+                    height: MediaQuery.of(context).size.height * 0.95, // for example
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min, // 也很重要，告訴 Column 只包裹內容高度
