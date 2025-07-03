@@ -10,6 +10,8 @@ import '../../models/baby_record.dart';
 import 'package:provider/provider.dart';
 import '../widgets/loading_overlay.dart';
 import '../viewmodel/timeline_viewmodel.dart';
+import 'package:children/pages/login_page.dart';
+
 
 
 class TimelinePage extends StatefulWidget {
@@ -147,6 +149,7 @@ class _TimelinePageState extends State<TimelinePage> {
                       icon: const Icon(Icons.logout),
                       onPressed: () async {
                         await authState.signOut();
+                        Navigator.of(context).pushReplacementNamed(LoginPage.routeName);
                       },
                     ),
                   ],
@@ -154,8 +157,13 @@ class _TimelinePageState extends State<TimelinePage> {
               ],
             ),
             floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(AddRecordPage.routeName);
+              onPressed: () async {
+                await Navigator.of(context).pushNamed(AddRecordPage.routeName);
+                setState(() {
+                  viewModel.records.clear();
+                  viewModel.selectedIds.clear();
+                  viewModel.loadRecords(authState.uid);
+                });
               },
               child: const Icon(Icons.add_a_photo),
             ),

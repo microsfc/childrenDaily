@@ -61,7 +61,7 @@ void main() async {
   
   // Initialize FCM
   await locator<FCMService>().initialize();
-  
+
   runApp(const MyApp());
 }
 
@@ -100,7 +100,6 @@ class MyApp extends StatelessWidget {
           LoginPage.routeName: (context) => LoginPage(),
           HomePage.routeName: (context) => HomePage(),
           TimelinePage.routeName: (context) => TimelinePage(),
-          AddRecordPage.routeName: (context) => AddRecordPage(),
           CalendarPage.routeName: (context) => CalendarPage(),
           PaymentScreen.routeName: (context) => PaymentScreen(),
         },
@@ -123,6 +122,17 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                 builder: (context) => GrowthChartPage(rangeInYears: rangeInYears),
               );
+            case AddRecordPage.routeName:
+            if (settings.arguments == null) {
+              return MaterialPageRoute(
+                builder: (context) => AddRecordPage(),
+              );
+            } else {
+              final babyRecord = settings.arguments as BabyRecord;
+              return MaterialPageRoute(
+                builder: (context) => AddRecordPage(record: babyRecord),
+              );
+            } 
             default:
               return null;
           }

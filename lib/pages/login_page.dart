@@ -58,6 +58,10 @@ class _LoginPageState extends State<LoginPage> {
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
+        if (result.error != null) {
+          ErrorDialog(errorMessage: result.error!).showErrorDialog(context, result.error!);
+          return;
+        }
         if (!mounted) return; // Check if the widget is still mounted
         // Update the auth state with the logged in user
           final authState = Provider.of<AuthState>(context, listen: false);
@@ -114,7 +118,9 @@ class _LoginPageState extends State<LoginPage> {
         builder: (context, viewModel, _) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Login'),
+              title: Text('Baby Growth Tracker'),
+              centerTitle: true,
+              backgroundColor: const Color(0xFF00BFA6),
             ),
             body: LoadingOverlay(
               isLoading: viewModel.isLoading,

@@ -6,6 +6,7 @@ class AppUser {
   final String displayName;
   final String profileImageUrl;
   String fcmToken;
+  String errorMessage;
 
   AppUser({
     required this.uid,
@@ -13,6 +14,7 @@ class AppUser {
     required this.displayName,
     required this.profileImageUrl,
     required this.fcmToken,
+    this.errorMessage = '',
     });
 
   factory AppUser.fromMap(Map<String, dynamic> map, String userId) {

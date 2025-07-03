@@ -22,7 +22,7 @@ class FirestoreBabyRecordRepository implements BabyRecordRepository {
   @override
   Future<List<BabyRecord>> getRecords(String userId) async {
     final snapshot = await _firestore.collection('baby_records')
-        .where('uid', isEqualTo: userId)
+        .where('sharedIds', arrayContains: userId)
         .orderBy('date', descending: true)
         .get();
         
@@ -38,7 +38,7 @@ class FirestoreBabyRecordRepository implements BabyRecordRepository {
     DocumentSnapshot? lastDocument
   }) async {
     Query query = _firestore.collection('baby_records')
-        .where('uid', isEqualTo: uid)
+        .where('sharedIds', arrayContains: uid)
         .orderBy('date', descending: true)
         .limit(limit);
         
@@ -64,13 +64,13 @@ class FirestoreBabyRecordRepository implements BabyRecordRepository {
   Future<List<BabyRecord>> searchRecords(String userId, String keyword) async {
     // First search by tags that contain the keyword
     final tagsSnapshot = await _firestore.collection('baby_records')
-        .where('uid', isEqualTo: userId)
+        .where('sharedIds', arrayContains: userId)
         .where('tags', arrayContains: keyword)
         .get();
         
     // Then search by note field
     final noteSnapshot = await _firestore.collection('baby_records')
-        .where('uid', isEqualTo: userId)
+        .where('sharedIds', arrayContains: userId)
         .get();
     
     // Filter note results manually since Firestore doesn't support text search

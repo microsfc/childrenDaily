@@ -1,7 +1,9 @@
+import 'dart:math';
 import '../utils/result.dart';
 import '../models/appuser.dart';
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+
 
 class LoginViewModel with ChangeNotifier {
   final AuthService _authService;
@@ -17,23 +19,27 @@ class LoginViewModel with ChangeNotifier {
   Future<Result<AppUser>> login(String email, String password) async {
     _isLoading = true;
     try {
-      final user = await _authService.signInWithEmailAndPassword(email, password);
-      
-      if (user == null) {
-        _error = 'Login failed. Please check your credentials.';
-        return Result.error(_error!);
-      } else {
-        AppUser currentUser = AppUser(
-          uid: user.uid,
-          fcmToken: '',
-          email: user.email,
-          displayName: user.displayName,
-          profileImageUrl: '',
-        );
+      final user = await _authService.signInWithEmailAndPassword(email, password); 
+        if (user is AppUser) {
+          if (user.errorMessage.isNotEmpty) {
+            _error = user.errorMessage;
+            return Result.error(_error!);
+          } else {
+            AppUser currentUser = AppUser(
+              uid: user.uid,
+              fcmToken: '',
+              email: user.email,
+              displayName: user.displayName,
+              profileImageUrl: user.profileImageUrl,
+            );
+            notifyListeners();
+            return Result.success(currentUser);
+        }
+       } else {
+        _error = 'Login failed. Please check your credentials and try again.';
         notifyListeners();
-        return Result.success(currentUser);  
-      }
-      
+        return Result.error(_error!);
+       }
     } catch (e) {
       _error = e.toString();
       notifyListeners();

@@ -60,7 +60,7 @@ class FirebaseAuthService implements AuthService {
     } on FirebaseAuthException catch (e) {
       print('Sign in error: ${e.code}');
       // ErrorDialog(errorMessage: 'Error signing in with email and password');
-      return null;
+      return AppUser(uid: '', email: '', displayName: '', profileImageUrl: '', fcmToken: '', errorMessage: e.message!);
     }
     return null;
   }
