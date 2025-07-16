@@ -3,13 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+enum NotificationPermissionStatus {
+  granted,
+  denied,
+  provisional,
+  unknown,
+}
+
 abstract class FCMService {
   Future<void> initialize();
   Future<String?> getToken();
-  Future<void> requestPermission();
+  Future<NotificationPermissionStatus> requestPermission();
   void setupForegroundNotificationHandler();
   Future<void> setupBackgroundMessageHandler();
   void handleNotificationClick(Function(RemoteMessage) onNotificationClick);
+  Future <void> subscribeToTopic(String topic);
+  Future <void> unsubscribeFromTopic(String topic);
 }
 
 class FCMServiceImpl implements FCMService {
@@ -29,14 +38,19 @@ class FCMServiceImpl implements FCMService {
   @override
   Future<void> initialize() async {
     // Request permission
-    await requestPermission();
+    final permissionStatus = await requestPermission();
+
+    if (permissionStatus != NotificationPermissionStatus.granted) {
+      debugPrint('Notification permission not granted: $permissionStatus');
+      return;
+    }
     
     // Set up handlers
     setupForegroundNotificationHandler();
     await setupBackgroundMessageHandler();
-    
     // Initialize local notifications
     await _initializeLocalNotifications();
+    // handleNotificationClick(_handleMessage);
     
     // Check for initial message (app opened from terminated state)
     final initialMessage = await _firebaseMessaging.getInitialMessage();
@@ -47,19 +61,49 @@ class FCMServiceImpl implements FCMService {
   
   @override
   Future<String?> getToken() async {
-    return await _firebaseMessaging.getToken();
+    try {
+      final token = await _firebaseMessaging.getToken();
+      if (token != null) {
+        debugPrint('FCM token: $token');
+        return token;
+      } else {
+        debugPrint('Failed to get FCM token');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error getting FCM token: $e');
+      return null;
+    }
+    
   }
   
   @override
-  Future<void> requestPermission() async {
-    final settings = await _firebaseMessaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
-    
-    debugPrint('User notification permission status: ${settings.authorizationStatus}');
+  Future<NotificationPermissionStatus> requestPermission() async {
+    try {
+        final settings = await _firebaseMessaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+      );
+      switch (settings.authorizationStatus) {
+        case AuthorizationStatus.authorized:
+          debugPrint('User granted notification permission');
+          return NotificationPermissionStatus.granted;
+        case AuthorizationStatus.denied:
+          debugPrint('User denied notification permission');
+          return NotificationPermissionStatus.denied;
+        case AuthorizationStatus.provisional:
+          debugPrint('User granted provisional notification permission');
+          return NotificationPermissionStatus.provisional;
+        default:
+          debugPrint('User notification permission status: ${settings.authorizationStatus}');
+          return NotificationPermissionStatus.unknown;
+      }
+    } catch (e) {
+      debugPrint('Error checking notification permission: $e');
+      return NotificationPermissionStatus.unknown;
+    }
   }
   
   Future<void> _initializeLocalNotifications() async {
@@ -72,14 +116,21 @@ class FCMServiceImpl implements FCMService {
     await _flutterLocalNotificationsPlugin.initialize(
       const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        iOS: DarwinInitializationSettings(),
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        ),
       ),
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         // Handle notification tap
         if (response.payload != null) {
           final data = json.decode(response.payload!);
-          // Handle the notification data
+          // Handle the notification data, maybe navigate to a specific page
           debugPrint('Notification payload: $data');
+          // You can call a function to handle the notification click
+          // For example, if you have a function to handle it:
+          debugPrint('Notification tapped with payload: $data');
         }
       },
     );
@@ -104,9 +155,8 @@ class FCMServiceImpl implements FCMService {
   
   void _showLocalNotification(RemoteMessage message) {
     final notification = message.notification;
-    final android = message.notification?.android;
     
-    if (notification != null && android != null) {
+    if (notification != null) {
       _flutterLocalNotificationsPlugin.show(
         notification.hashCode,
         notification.title,
@@ -144,5 +194,30 @@ class FCMServiceImpl implements FCMService {
   void _handleMessage(RemoteMessage message) {
     // Handle the message as needed
     debugPrint('Handling message: ${message.notification?.title}');
+    // Navigator.pushNamed(
+    //   navigatorKey.currentContext!,
+    //   '/notification',
+    //   arguments: message.data,
+    // );
+  }
+
+  @override
+  Future<void> subscribeToTopic(String topic) async {
+    try {
+      await _firebaseMessaging.subscribeToTopic(topic);
+      debugPrint('Subscribed to topic: $topic');
+    } catch (e) {
+      debugPrint('Error subscribing to topic $topic: $e');
+    }
+  }
+
+  @override
+  Future<void> unsubscribeFromTopic(String topic) async {
+    try {
+      await _firebaseMessaging.unsubscribeFromTopic(topic);
+      debugPrint('Unsubscribed from topic: $topic');
+    } catch (e) {
+      debugPrint('Error unsubscribing from topic $topic: $e');
+    }
   }
 }

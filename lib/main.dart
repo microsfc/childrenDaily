@@ -6,6 +6,7 @@ import 'pages/home_page.dart';
 import 'state/auth_state.dart';
 import 'firebase_options.dart';
 import 'pages/login_page.dart';
+import 'config/api_config.dart';
 import 'state/record_state.dart';
 import 'models/baby_record.dart';
 import 'pages/calendar_page.dart';
@@ -54,11 +55,11 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
   // Initialize Stripe
-  Stripe.publishableKey = "pk_test_51QrsraCiI9KAAR1QoiaDEXhJQdBc7k1Oe6jxi2HBVpuNtHFJfRoE6RC1BHaLfbTHVYGTVVVrTJCpjl5Lqjp4It9S00PHsTWeL1";
-  
+  Stripe.publishableKey = ApiConfig.stripePublishableKey;
+
   // Set up dependency injection
   await setupLocator();
-  
+
   // Initialize FCM
   await locator<FCMService>().initialize();
 

@@ -6,18 +6,12 @@ import '../utils/error_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/loading_overlay.dart';
-import 'package:children/models/appuser.dart';
 import 'package:children/state/auth_state.dart';
 import 'package:image_picker/image_picker.dart';
 import '../viewmodel/add_record_viewmodel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:children/pages/record_detail_page.dart';
 import 'package:children/viewmodel/share_viewmodel.dart';
 import 'package:children/repositories/user_repository.dart';
-
-
-
-
 
 class AddRecordPage extends StatefulWidget {
   final BabyRecord? record;

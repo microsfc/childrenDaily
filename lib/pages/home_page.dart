@@ -6,6 +6,7 @@ import './calendarEvent_page.dart';
 import './height_weight_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:children/di/locator.dart';
 import 'package:animations/animations.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/models/appuser.dart';
@@ -16,24 +17,9 @@ import 'package:children/bloc/record_event.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:children/services/firestore_service.dart';
+import 'package:children/services/navigation_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-
-
-
-
-// 創建通知頻道 ID 和名稱
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  'event_reminders_channel', // id
-  '事件提醒', // title
-  description: '接收即將開始的事件提醒', // description
-  importance: Importance.high,
-);
-
-// 初始化 FlutterLocalNotificationsPlugin
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -58,153 +44,45 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // 初始化通知處理
-    setupInteractedMessage();
-    // 請求權限並獲取Token
-    requestPermissionAndGetToken();
-
-    _setupFCM();
-    
-    // 監聽 token 刷新事件
+    // 設置通知點擊處理器（當應用在背景但未終止時）
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+    // // 監聽 token 刷新事件
+    final appState = AppState.of(context); // Move outside async gap
     FirebaseMessaging.instance.onTokenRefresh.listen((String token) async {
       print('FCM Token 已刷新: $token');
       // 更新 Firestore 中的 token
-      final appState = AppState.of(context);
-        AppUser? updateUser = appState.currentUser;
-        updateUser!.fcmToken = token;
+      if (!mounted) return; // Guard with mounted check if needed
+      AppUser? updateUser = appState.currentUser;
+      updateUser!.fcmToken = token;
 
-        await FirebaseFirestore.instance
-            .collection('users')
-            .where('uid', isEqualTo: updateUser.uid)
-            .get()
-            .then((QuerySnapshot snapshot) {
-          if (snapshot.docs.isNotEmpty) {
-            // 更新 Firestore 中的用戶資料
-            FirebaseFirestore.instance
-                .collection('users')
-                .doc(snapshot.docs[0].id)
-                .update(updateUser.toMap());
-          }});
-    });
-    
-    // 設置本地通知點擊事件
-    flutterLocalNotificationsPlugin.initialize(
-      InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        iOS: DarwinInitializationSettings(),
-      ),
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        print('點擊本地通知: ${response.payload}');
-        if (response.payload != null) {
-          Map<String, dynamic> data = jsonDecode(response.payload!);
-          if (data['eventId'] != null) {
-            // 導航到事件詳情頁面
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => CalendarEventPage(),
-              ),
-            );
-          }
+      await FirebaseFirestore.instance
+          .collection('users')
+          .where('uid', isEqualTo: updateUser.uid)
+          .get()
+          .then((QuerySnapshot snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          // 更新 Firestore 中的用戶資料
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(snapshot.docs[0].id)
+              .update(updateUser.toMap());
         }
-      },
-    );
+      });
+    });
   }
 
   // 處理通知點擊事件
   void _handleMessage(RemoteMessage message) {
     print('處理通知點擊: ${message.data}');
     if (message.data['eventId'] != null) {
-      // 導航到事件詳情頁面
-      Navigator.of(context).push(
+      // 使用全局的 navigatorKey 來進行導航
+      // currentState 可能為 null，所以使用 ?. (null-safe) 運算符更安全
+      locator<NavigationService>().navigatorKey.currentState?.push(
         MaterialPageRoute(
+          // builder 裡的 context 是由 MaterialPageRoute 新提供的，是安全的
           builder: (context) => CalendarEventPage(),
         ),
       );
-    }
-  }
-
-  // 請求通知權限並獲取 FCM Token
-  Future<void> requestPermissionAndGetToken() async {
-    // 請求通知權限
-    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    print('使用者通知授權狀態: ${settings.authorizationStatus}');
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      // 獲取 FCM Token
-      String? token = await FirebaseMessaging.instance.getToken();
-      print('FCM Token: $token');
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null && token != null) {
-        final authState = Provider.of<AuthState>(context, listen: false);
-        AppUser? updateUser = authState.currentUser;
-        updateUser!.fcmToken = token;
-
-        await FirebaseFirestore.instance
-            .collection('users')
-            .where('uid', isEqualTo: currentUser.uid)
-            .get()
-            .then((QuerySnapshot snapshot) {
-          if (snapshot.docs.isNotEmpty) {
-            // 更新 Firestore 中的用戶資料
-            FirebaseFirestore.instance
-                .collection('users')
-                .doc(snapshot.docs[0].id)
-                .update(updateUser.toMap());
-          }});
-      }
-    }
-  }
-
-  // 初始化處理通知相關設定
-  Future<void> setupInteractedMessage() async {
-    // 獲取從終止狀態打開應用程式的通知
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-    
-    // 如果應用程式是通過點擊通知打開的，處理通知內容
-    if (initialMessage != null) {
-      _handleMessage(initialMessage);
-    }
-
-    // 設置前景通知處理器
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('收到前景通知: ${message.notification?.title}');
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-
-      // 如果通知不為空且在 Android 平台上
-      if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              channelDescription: channel.description,
-              icon: '@mipmap/ic_launcher',
-            ),
-          ),
-          payload: jsonEncode(message.data),
-        );
-      }
-    });
-
-    // 設置通知點擊處理器（當應用在背景但未終止時）
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
-  }
-
-  Future<void> _setupFCM() async {
-    // Request FCM token and update user
-    final token = await FirebaseMessaging.instance.getToken();
-    if (token != null) {
-      final authState = Provider.of<AuthState>(context, listen: false);
-      authState.updateFcmToken(token);
     }
   }
 
