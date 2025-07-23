@@ -145,7 +145,7 @@ class MyApp extends StatelessWidget {
 
 // Determine initial route based on authentication state
 class AppStartPage extends StatelessWidget {
-  const AppStartPage({Key? key}) : super(key: key);
+  const AppStartPage({super.key});
   
   @override
   Widget build(BuildContext context) {

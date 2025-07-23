@@ -11,6 +11,7 @@ class BabyRecord {
   final String height; // 身高
   final String weight; // 體重
   final List<String> sharedIds;
+  final String emoji = ''; // 表情符號，預設為空字符串
 
   BabyRecord({
     required this.id,
@@ -23,6 +24,7 @@ class BabyRecord {
     required this.height,
     required this.weight,
     required this.sharedIds,
+    emoji = "❤️",
   });
 
   // 將 Firebase 讀出的資料轉成 Model

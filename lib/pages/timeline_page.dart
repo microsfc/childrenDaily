@@ -11,6 +11,10 @@ import 'package:provider/provider.dart';
 import '../widgets/loading_overlay.dart';
 import '../viewmodel/timeline_viewmodel.dart';
 import 'package:children/pages/login_page.dart';
+import 'package:children/widgets/record_card_component.dart';
+import 'package:children/widgets/timeline_dot_component.dart';
+
+
 
 
 
@@ -117,7 +121,6 @@ class _TimelinePageState extends State<TimelinePage> {
   @override
   Widget build(BuildContext context) {
     final authState = Provider.of<AuthState>(context);
-    
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Consumer<TimelineViewModel>(
@@ -172,6 +175,7 @@ class _TimelinePageState extends State<TimelinePage> {
               child: Column(
                 children: [
                   _buildSearchBar(viewModel),
+                  SizedBox(width: 20),
                   Expanded(
                     child: viewModel.records.isEmpty
                         ? _buildEmptyState(viewModel)
@@ -274,14 +278,15 @@ class _TimelinePageState extends State<TimelinePage> {
         
         final record = viewModel.records[index];
         final isSelected = viewModel.selectedIds.contains(record.id);
-        
-        return RecordTile(
-          key: ValueKey(record.id),
-          record: record,
-          isSelected: isSelected,
-          onTap: (BabyRecord record) => _onRecordTap(record),
-          onLongPress: (BabyRecord record) => _onRecordLongPress(record),
-        );
+
+        return RecordCardComponent(record: record, index: index, recordLength: viewModel.records.length, scrollController: _scrollController);
+        // return RecordTile(
+        //   key: ValueKey(record.id),
+        //   record: record,
+        //   isSelected: isSelected,
+        //   onTap: (BabyRecord record) => _onRecordTap(record),
+        //   onLongPress: (BabyRecord record) => _onRecordLongPress(record),
+        // );
       },
     );
   }
