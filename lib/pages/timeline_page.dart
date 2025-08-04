@@ -11,11 +11,37 @@ import 'package:provider/provider.dart';
 import '../widgets/loading_overlay.dart';
 import '../viewmodel/timeline_viewmodel.dart';
 import 'package:children/pages/login_page.dart';
+import 'package:children/pages/RecordDetailScreen.dart';
 import 'package:children/widgets/record_card_component.dart';
-import 'package:children/widgets/timeline_dot_component.dart';
 
 
+// ==================== Strategy Pattern for Animation ====================
+abstract class AnimationStrategy {
+  void startAnimation(AnimationController controller);
+}
 
+class SlideInAnimationStrategy implements AnimationStrategy {
+  @override
+  void startAnimation(AnimationController controller) {
+    controller.forward();
+  }
+}
+
+class StaggeredAnimationStrategy implements AnimationStrategy {
+  final int itemCount;
+  final List<AnimationController> controllers;
+
+  StaggeredAnimationStrategy(this.itemCount, this.controllers);
+
+  @override
+  void startAnimation(AnimationController controller) {
+    for (int i = 0; i < controllers.length; i++) {
+      Future.delayed(Duration(milliseconds: 200 * (i + 1)), () {
+        controllers[i].forward();
+      });
+    }
+  }
+}
 
 
 class TimelinePage extends StatefulWidget {
@@ -27,25 +53,47 @@ class TimelinePage extends StatefulWidget {
   State<TimelinePage> createState() => _TimelinePageState();
 }
 
-class _TimelinePageState extends State<TimelinePage> {
+class _TimelinePageState extends State<TimelinePage> with TickerProviderStateMixin {
   final _scrollController = ScrollController();
   late final TimelineViewModel _viewModel;
+  late AnimationController _mainAnimationController;
+  late List<AnimationController> _itemAnimationControllers;
   
   @override
   void initState() {
     super.initState();
     _viewModel = locator<TimelineViewModel>();
+    _mainAnimationController = AnimationController(
+      duration: Duration(milliseconds: 1200),
+      vsync: this,
+    );
     
     final authState = Provider.of<AuthState>(context, listen: false);
     _viewModel.loadRecords(authState.uid);
-    
-    _scrollController.addListener(_onScroll);
+    _itemAnimationControllers = List.generate(
+        _viewModel.records.length,
+        (index) => AnimationController(
+          duration: Duration(milliseconds: 800),
+          vsync: this,
+        ),
+    );
+    _startAnimations();
+    // _scrollController.addListener(_onScroll);
+    _scrollController.addListener(() => setState(() {}));
+  }
+
+  void _startAnimations() {
+    final strategy = StaggeredAnimationStrategy(_viewModel.records.length, _itemAnimationControllers);
+    strategy.startAnimation(_mainAnimationController);
+    _mainAnimationController.forward();
   }
   
   @override
   void dispose() {
     _scrollController.removeListener(_onScroll);
+    _scrollController.removeListener(() => setState(() {}));
     _scrollController.dispose();
+    _mainAnimationController.dispose();
     super.dispose();
   }
   
@@ -161,7 +209,24 @@ class _TimelinePageState extends State<TimelinePage> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () async {
-                await Navigator.of(context).pushNamed(AddRecordPage.routeName);
+                // await Navigator.of(context).pushNamed(AddRecordPage.routeName);
+                final authState = Provider.of<AuthState>(context, listen: false);
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => RecordDetailScreen(record: BabyRecord(
+                      id: '',
+                      note: '',
+                      height: '',
+                      weight: '',
+                      vaccineStatus: '',
+                      photoUrl: '',
+                      date: DateTime.now(),
+                      uid: authState.uid,
+                      tags: [],
+                      sharedIds: [],
+                    )),
+                  ),
+                );
                 setState(() {
                   viewModel.records.clear();
                   viewModel.selectedIds.clear();
@@ -191,25 +256,36 @@ class _TimelinePageState extends State<TimelinePage> {
   }
   
   Widget _buildSearchBar(TimelineViewModel viewModel) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Search by tags or notes',
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: viewModel.searchKeyword.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: _clearSearch,
-                )
-              : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+    return AnimatedBuilder(
+      animation: _mainAnimationController,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, -50 * (1 - _mainAnimationController.value)),
+          child: Opacity(
+            opacity: _mainAnimationController.value,
+            child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Search by tags or notes',
+                          prefixIcon: const Icon(Icons.search),
+                          suffixIcon: viewModel.searchKeyword.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: _clearSearch,
+                                )
+                              : null,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onChanged: _handleSearch,
+                      ),
+                   )
           ),
-        ),
-        onChanged: _handleSearch,
-      ),
-    );
+        );
+      },
+    );  
   }
   
   Widget _buildEmptyState(TimelineViewModel viewModel) {
@@ -255,7 +331,23 @@ class _TimelinePageState extends State<TimelinePage> {
           const SizedBox(height: 8),
           ElevatedButton.icon(
             onPressed: () {
-              Navigator.of(context).pushNamed(AddRecordPage.routeName);
+              final authState = Provider.of<AuthState>(context, listen: false);
+              Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => RecordDetailScreen(record: BabyRecord(
+                      id: '',
+                      note: '',
+                      height: '',
+                      weight: '',
+                      vaccineStatus: '',
+                      photoUrl: '',
+                      date: DateTime.now(),
+                      uid: authState.uid,
+                      tags: [],
+                      sharedIds: [],
+                    )),
+                  ),
+                );
             },
             icon: const Icon(Icons.add_a_photo),
             label: const Text('Add Your First Record'),
@@ -264,29 +356,47 @@ class _TimelinePageState extends State<TimelinePage> {
       ),
     );
   }
-  
-  Widget _buildRecordsList(TimelineViewModel viewModel) {
-    return ListView.builder(
-      controller: _scrollController,
-      itemCount: viewModel.records.length + (viewModel.hasMoreData ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index == viewModel.records.length) {
-          return viewModel.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : const SizedBox.shrink();
-        }
-        
-        final record = viewModel.records[index];
-        final isSelected = viewModel.selectedIds.contains(record.id);
 
-        return RecordCardComponent(record: record, index: index, recordLength: viewModel.records.length, scrollController: _scrollController);
-        // return RecordTile(
-        //   key: ValueKey(record.id),
-        //   record: record,
-        //   isSelected: isSelected,
-        //   onTap: (BabyRecord record) => _onRecordTap(record),
-        //   onLongPress: (BabyRecord record) => _onRecordLongPress(record),
-        // );
+  void _onRecordUpdated(int index, BabyRecord updatedRecord) {
+    setState(() {
+      _viewModel.records[index] = updatedRecord; // 更新列表中的記錄
+    });
+  }
+
+  Widget _buildRecordsList(TimelineViewModel viewModel) {
+    
+    return AnimatedBuilder(
+      animation: _mainAnimationController,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, -50 * (1 - _mainAnimationController.value)),
+          child: Opacity(
+            opacity: _mainAnimationController.value,
+            child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: viewModel.records.length + (viewModel.hasMoreData ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == viewModel.records.length) {
+                        return viewModel.isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : const SizedBox.shrink();
+                      }
+                      
+                      final record = viewModel.records[index];
+                      final isSelected = viewModel.selectedIds.contains(record.id);
+
+                      return RecordCardComponent(record: record, index: index, recordLength: viewModel.records.length, scrollController: _scrollController, onRecordUpdated: _onRecordUpdated);
+                      // return RecordTile(
+                      //   key: ValueKey(record.id),
+                      //   record: record,
+                      //   isSelected: isSelected,
+                      //   onTap: (BabyRecord record) => _onRecordTap(record),
+                      //   onLongPress: (BabyRecord record) => _onRecordLongPress(record),
+                      // );
+                    },
+                  )
+          ),
+        );
       },
     );
   }

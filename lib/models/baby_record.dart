@@ -100,7 +100,4 @@ class BabyRecord {
   bool get hasWeight => weight.isNotEmpty;
   bool get hasSharedIds => sharedIds.isNotEmpty;
   String get formattedTags => tags.join(', ');
-
-
-
 }

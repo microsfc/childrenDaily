@@ -26,6 +26,7 @@ import 'package:children/state/AppState.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:children/pages/RecordDetailScreen.dart';
 import 'package:children/services/calendar_service.dart';
 import 'package:children/services/firestore_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -106,11 +107,11 @@ class MyApp extends StatelessWidget {
         },
         onGenerateRoute: (settings) {
           switch (settings.name) {
-            case RecordDetailPage.routeName:
-              final record = settings.arguments as BabyRecord;
-              return MaterialPageRoute(
-                builder: (context) => RecordDetailPage(record: record),
-              );
+            // case RecordDetailPage.routeName:
+            //   final record = settings.arguments as BabyRecord;
+            //   return MaterialPageRoute(
+            //     builder: (context) => RecordDetailPage(record: record),
+            //   );
             case DailyRecordsPage.routeName:
               final date = settings.arguments as DateTime;
               return MaterialPageRoute(
@@ -123,17 +124,22 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                 builder: (context) => GrowthChartPage(rangeInYears: rangeInYears),
               );
+            case RecordDetailScreen.routeName:
+              final record = settings.arguments as BabyRecord;
+              return MaterialPageRoute(
+                builder: (context) => RecordDetailScreen(record: record),
+              );
             case AddRecordPage.routeName:
-            if (settings.arguments == null) {
-              return MaterialPageRoute(
-                builder: (context) => AddRecordPage(),
-              );
-            } else {
-              final babyRecord = settings.arguments as BabyRecord;
-              return MaterialPageRoute(
-                builder: (context) => AddRecordPage(record: babyRecord),
-              );
-            } 
+              if (settings.arguments == null) {
+                return MaterialPageRoute(
+                  builder: (context) => AddRecordPage(),
+                );
+              } else {
+                final babyRecord = settings.arguments as BabyRecord;
+                return MaterialPageRoute(
+                  builder: (context) => AddRecordPage(record: babyRecord),
+                );
+              }
             default:
               return null;
           }

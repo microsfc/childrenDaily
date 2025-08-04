@@ -100,9 +100,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
     _viewModel.setVaccineStatus(_vaccController.text);
     _viewModel.setHeight(_heightController.text);
     _viewModel.setWeight(_weightController.text);
-    _viewModel.setTags(_tagsController.text);
-
-    
+    // _viewModel.setTags(_tagsController.text);
     
     // Use AuthState to get user ID
     final authState = Provider.of<AuthState>(context, listen: false);

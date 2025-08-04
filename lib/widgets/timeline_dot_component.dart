@@ -17,7 +17,7 @@ class TimelineDotComponent extends StatelessWidget {
       child: Column(
         children: [
           Transform.translate(
-            offset: Offset(0, parallaxOffset * 0.1),
+            offset: Offset(0, 8),
             child: Container(
               width: 20,
               height: 20,

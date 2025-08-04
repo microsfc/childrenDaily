@@ -43,13 +43,18 @@ class AddRecordViewModel with ChangeNotifier {
     _record = record;
     _selectedDate = record.date;
     // ignore: unnecessary_null_comparison
-    //_imageFile = record.photoUrl != null ? File(record.photoUrl) : null;
+    // _imageFile = record.photoUrl != null ? File(record.photoUrl) : null;
     _note = record.note;
     _vaccineStatus = record.vaccineStatus;
     _height = record.height;
     _weight = record.weight;
     _tags = List.from(record.tags);
     _sharedIds = List.from(record.sharedIds);
+    notifyListeners();
+  }
+
+  void setImageUrl(String url) {
+    _imageFile = File(url);
     notifyListeners();
   }
 
@@ -77,14 +82,9 @@ class AddRecordViewModel with ChangeNotifier {
     _weight = weight;
     notifyListeners();
   }
-  void setTags(String tags) {
-    if (tags.isEmpty) {
-      _tags = [];
-    } else {
-      _tags = tags.split(',').map((tag) => tag.trim()).toList();
-    }
-    notifyListeners();
-    
+  void setTags(List<String> tags) {
+    _tags = tags;
+    notifyListeners();    
   }
   void toggleShareUser(String userId) {
     if (_sharedIds.contains(userId)) {
