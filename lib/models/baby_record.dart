@@ -27,6 +27,21 @@ class BabyRecord {
     emoji = "❤️",
   });
 
+  factory BabyRecord.empty(String uid) {
+    return BabyRecord(
+      id: '',
+      uid: uid,
+      date: DateTime.now(),
+      photoUrl: '',
+      note: '',
+      tags: [],
+      vaccineStatus: '',
+      height: '',
+      weight: '',
+      sharedIds: [],
+    );
+  }
+
   // 將 Firebase 讀出的資料轉成 Model
   factory BabyRecord.fromMap(Map<String, dynamic> map, String documentId) {
     return BabyRecord(

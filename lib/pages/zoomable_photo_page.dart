@@ -1,17 +1,21 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:children/generated/l10n.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+
 class ZoomablePhotoPage extends StatelessWidget {
   final String imageUrl;
   final String heroTag;
+  final bool isLocalFile;
 
   const ZoomablePhotoPage({
-    Key? key,
+    super.key,
     required this.imageUrl,
     required this.heroTag,
-  }) : super(key: key);
+    this.isLocalFile = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +30,9 @@ class ZoomablePhotoPage extends StatelessWidget {
       ),
       body: Hero(
         tag: heroTag,
-        child: PhotoView(
-          imageProvider: CachedNetworkImageProvider(imageUrl),
-        ),
+        child: isLocalFile 
+            ? Image.file(File(imageUrl))
+            : PhotoView(imageProvider: CachedNetworkImageProvider(imageUrl)),
       ),
     );
   }

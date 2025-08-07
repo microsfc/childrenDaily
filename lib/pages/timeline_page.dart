@@ -78,7 +78,7 @@ class _TimelinePageState extends State<TimelinePage> with TickerProviderStateMix
         ),
     );
     _startAnimations();
-    // _scrollController.addListener(_onScroll);
+    _scrollController.addListener(_onScroll);
     _scrollController.addListener(() => setState(() {}));
   }
 

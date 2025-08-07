@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 abstract class BabyRecordRepository {
   Future<List<BabyRecord>> getRecords(String userId);
   Future<List<BabyRecord>> getRecordsByDate(String userId, DateTime date);
-  Future<RecordsBatch> getRecordsBatch({required String uid, int limit = 10, DocumentSnapshot? lastDocument});
+  Future<RecordsBatch> getRecordsBatch({required String uid, DocumentSnapshot? lastDocument});
   Future<List<BabyRecord>> searchRecords(String userId, String keyword);
   Future<BabyRecord?> getRecordById(String id);
   Future<BabyRecord> addOrUpdateRecord(BabyRecord record);
@@ -33,14 +33,13 @@ class FirestoreBabyRecordRepository implements BabyRecordRepository {
   
   @override
   Future<RecordsBatch> getRecordsBatch({
-    required String uid, 
-    int limit = 10, 
+    required String uid,
     DocumentSnapshot? lastDocument
   }) async {
     Query query = _firestore.collection('baby_records')
         .where('sharedIds', arrayContains: uid)
-        .orderBy('date', descending: true)
-        .limit(limit);
+        .limit(10) // Default limit, can be adjusted  
+        .orderBy('date', descending: true);
         
     if (lastDocument != null) {
       query = query.startAfterDocument(lastDocument);

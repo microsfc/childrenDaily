@@ -14,12 +14,15 @@ import 'package:children/state/auth_state.dart';
 import 'package:children/bloc/record_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:children/bloc/record_event.dart';
+import 'package:children/models/baby_record.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:children/pages/RecordDetailScreen.dart';
 import 'package:children/services/firestore_service.dart';
 import 'package:children/services/navigation_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,10 +35,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-
+  // List of screens to navigate to
   final _screenList = [
     TimelinePage(),
-    const AddRecordPage(),
+    RecordDetailScreen(record: BabyRecord.empty('')),
     const CalendarPage(),
     const GrowthChartPage(rangeInYears: 1),
     const CalendarEventPage(),

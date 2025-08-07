@@ -62,7 +62,7 @@ class TimelineViewModel extends ChangeNotifier {
     
     try {
       if (_searchKeyword.isEmpty) {
-        final batch = await _repository.getRecordsBatch(uid: userId, limit: 10, lastDocument: _lastDocument);
+        final batch = await _repository.getRecordsBatch(uid: userId, lastDocument: _lastDocument);
         
         _records = batch.records;
         _lastDocument = batch.lastDocument;
@@ -88,7 +88,6 @@ class TimelineViewModel extends ChangeNotifier {
     try {
       final batch = await _repository.getRecordsBatch(
         uid: userId, 
-        limit: 10,
         lastDocument: _lastDocument
       );
       

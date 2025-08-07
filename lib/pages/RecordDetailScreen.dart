@@ -8,8 +8,11 @@ import 'package:children/state/auth_state.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:children/models/baby_record.dart';
 import 'package:children/utils/error_handler.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:children/widgets/loading_overlay.dart';
+import 'package:children/viewmodel/share_viewmodel.dart';
 import 'package:children/pages/zoomable_photo_page.dart';
+import 'package:children/repositories/user_repository.dart';
 import 'package:children/viewmodel/add_record_viewmodel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -269,6 +272,8 @@ class _RecordDetailScreenState extends State<RecordDetailScreen>
                               SizedBox(height: 30),
                               _buildFormCard(),
                               SizedBox(height: 30),
+                              _buildSharedUsersList(viewModel),
+                              SizedBox(height: 30),
                               _buildActionButtons(),
                               SizedBox(height: 100), // 為浮動按鈕留出空間
                             ],
@@ -284,102 +289,337 @@ class _RecordDetailScreenState extends State<RecordDetailScreen>
     );
   }
 
-  Widget _buildPhotoSection() {
-    return Container(
-      width: double.infinity,
-      height: 350,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 15,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
+Widget _buildPhotoSection() {
+  return Container(
+    width: double.infinity,
+    height: 350,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.15),
+          blurRadius: 15,
+          offset: Offset(0, 8),
+        ),
+      ],
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(20),
       child: Stack(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFff9a9e).withOpacity(0.3),
-                    Color(0xFFfecfef).withOpacity(0.3),
+          // 背景漸變層
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFff9a9e).withOpacity(0.3),
+                  Color(0xFFfecfef).withOpacity(0.3),
+                ],
+              ),
+            ),
+          ),
+          
+          // 圖片顯示區域
+          if (photoUrl.isNotEmpty)
+            Positioned.fill(
+              child: Hero(
+                tag: heroTag,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ZoomablePhotoPage(
+                          imageUrl: photoUrl,
+                          heroTag: heroTag,
+                          isLocalFile: _isLocalFile(photoUrl),
+                        ),
+                      ),
+                    );
+                  },
+                  child: _buildImageWidget(),
+                ),
+              ),
+            ),
+          
+          // 如果沒有圖片，顯示佔位符
+          if (photoUrl.isEmpty)
+            Positioned.fill(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add_photo_alternate,
+                      size: 60,
+                      color: Colors.white.withOpacity(0.7),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "點擊添加照片",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              child: Column(
-                children: [
-                  SizedBox(height: 10),
-                  if (photoUrl.isNotEmpty)
-                    Hero(
-                      tag: heroTag,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ZoomablePhotoPage(
-                                imageUrl: photoUrl,
-                                heroTag: heroTag,
-                              ),
-                            ),
-                          );
-                        },
-                        child: CachedNetworkImage(
-                          imageUrl: photoUrl,
-                          placeholder: (context, url) => CircularProgressIndicator(),
-                          memCacheWidth: 200,
-                          errorWidget: (context, url, error) => Icon(Icons.error),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  SizedBox(height: 10),
-                  // _buildImagePicker(),
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.photo_camera,
-                            size: 25,
-                            color: Colors.white,
-                          ),
-                          onPressed: _pickImage,
-                        ),
-                      ],
-                    ),
+            ),
+          
+          // 相機按鈕 - 浮動在右下角
+          Positioned(
+            bottom: 15,
+            right: 15,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
                   ),
                 ],
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.photo_camera,
+                  size: 24,
+                  color: Colors.white,
+                ),
+                onPressed: _pickImage,
               ),
             ),
           ),
         ],
       ),
+    ),
+  );
+}
+
+// 圖片顯示 Widget
+Widget _buildImageWidget() {
+  if (_isLocalFile(photoUrl)) {
+    // 本地文件使用 Image.file
+    return Image.file(
+      File(photoUrl),
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          color: Colors.grey[300],
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error, size: 50, color: Colors.grey[600]),
+                SizedBox(height: 8),
+                Text(
+                  "圖片載入失敗",
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  } else {
+    // 網路圖片使用 CachedNetworkImage
+    return CachedNetworkImage(
+      imageUrl: photoUrl,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      placeholder: (context, url) => Container(
+        color: Colors.grey[100],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667eea)),
+              ),
+              SizedBox(height: 16),
+              Text(
+                "載入中...",
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      errorWidget: (context, url, error) => Container(
+        color: Colors.grey[300],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error, size: 50, color: Colors.grey[600]),
+              SizedBox(height: 8),
+              Text(
+                "圖片載入失敗",
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
+}
 
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+// 判斷是否為本地文件
+bool _isLocalFile(String path) {
+  if (path.isEmpty) return false;
+  
+  // 檢查是否為本地路徑
+  return path.startsWith('/') || 
+         path.startsWith('file://') || 
+         (path.contains('/data/') && File(path).existsSync());
+}
+
+// 更新的 _pickImage 方法
+Future<void> _pickImage() async {
+  final ImagePicker picker = ImagePicker();
+  final XFile? pickedFile = await picker.pickImage(
+    source: ImageSource.gallery,
+    maxWidth: 1920,
+    maxHeight: 1920,
+    imageQuality: 85,
+  );
+  
+  if (pickedFile != null) {
+    _viewModel.setImageFile(File(pickedFile.path));
     
-    if (pickedFile != null) {
-      _viewModel.setImageFile(File(pickedFile.path));
-    }
+    // 立即更新UI顯示本地圖片
+    setState(() {
+      photoUrl = pickedFile.path; // 使用本地路徑
+    });
+    
+    // 添加觸覺反饋
+    HapticFeedback.selectionClick();
   }
+ }
 
-  Widget _buildFormCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
-        borderRadius: BorderRadius.circular(25),
+// 修復後的 _buildSharedUsersList 方法
+Widget _buildSharedUsersList(AddRecordViewModel viewModel) {
+  return ChangeNotifierProvider<ShareViewModel>(
+    create: (_) => ShareViewModel(userRepository: FirestoreUserRepository(FirebaseFirestore.instance)),
+    builder: (context, child) {
+      final vm = context.watch<ShareViewModel>();
+      vm.sharedUserIds = viewModel.sharedIds.toSet();
+
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 15,
+              offset: Offset(0, 8),
+            ),
+          ],
+        ),
+        padding: EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '🤝 分享給其他使用者:',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2c3e50),
+              ),
+            ),
+            SizedBox(height: 15),
+            // 使用 Container 代替 Expanded，設定固定高度
+            Container(
+              height: vm.users.isEmpty ? 100 : (vm.users.length * 70.0).clamp(100.0, 250.0),
+              decoration: BoxDecoration(
+                color: Color(0xFFf8f9fa),
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Color(0xFFe9ecef), width: 1),
+              ),
+              child: vm.users.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667eea)),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            "載入中...",
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: EdgeInsets.all(8),
+                      itemCount: vm.users.length,
+                      itemBuilder: (context, index) {
+                        final user = vm.users[index];
+                        final isShared = vm.sharedUserIds.contains(user.uid);
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 4),
+                          decoration: BoxDecoration(
+                            color: isShared 
+                                ? Color(0xFF667eea).withOpacity(0.1)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: SwitchListTile(
+                            title: Text(
+                              user.displayName,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: isShared ? FontWeight.w600 : FontWeight.normal,
+                                color: isShared ? Color(0xFF667eea) : Color(0xFF2c3e50),
+                              ),
+                            ),
+                            value: isShared,
+                            activeColor: Color(0xFF667eea),
+                            onChanged: (newValue) {
+                              HapticFeedback.selectionClick();
+                              vm.toggleShared(user.uid, newValue);
+                              viewModel.toggleShareUser(user.uid);
+                            },
+                            dense: true,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+ Widget _buildFormCard() {
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(0.95),
+      borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -399,9 +639,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen>
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 decoration: BoxDecoration(
-                  color: Color(0xFFf8f9fa),
+                  color: Color.fromARGB(255, 7, 49, 90),
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: Color(0xFFe9ecef), width: 2),
+                  border: Border.all(color: Color.fromARGB(255, 1, 8, 15), width: 2),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -444,7 +684,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen>
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF2c3e50),
+            color: Color.fromARGB(255, 7, 49, 90)
           ),
         ),
         SizedBox(height: 8),
@@ -460,10 +700,10 @@ class _RecordDetailScreenState extends State<RecordDetailScreen>
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey[500]),
         filled: true,
-        fillColor: Color(0xFFf8f9fa),
+        fillColor: Color.fromARGB(255, 7, 49, 90),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: Color(0xFFe9ecef), width: 2),
+          borderSide: BorderSide(color: Color.fromARGB(255, 1, 8, 15), width: 2),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
@@ -486,7 +726,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen>
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey[500]),
         filled: true,
-        fillColor: Color(0xFFf8f9fa),
+        fillColor: Color.fromARGB(255, 2, 23, 43),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide(color: Color(0xFFe9ecef), width: 2),

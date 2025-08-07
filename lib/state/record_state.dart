@@ -53,7 +53,7 @@ class RecordsState extends ChangeNotifier {
     _hasMoreData = true;
     notifyListeners();
     try {
-      final batch = await _repository.getRecordsBatch(uid: userId, limit: 10);
+      final batch = await _repository.getRecordsBatch(uid: userId);
  
       _records = batch.records;
       _hasMoreData = batch.lastDocument != null;
@@ -76,8 +76,7 @@ class RecordsState extends ChangeNotifier {
     
     try {
       final batch = await _repository.getRecordsBatch(
-        uid: userId, 
-        limit: 10,
+        uid: userId,
         lastDocument: _lastDocument
       );
       
