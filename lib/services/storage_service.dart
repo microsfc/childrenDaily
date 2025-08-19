@@ -4,7 +4,6 @@ import 'package:path/path.dart' as path;
 import 'package:firebase_storage/firebase_storage.dart';
 
 abstract class StorageService {
-
   Future<String?> uploadFile(File file);
   Future<void> deleteFile(String url);
   Future<String> uploadProfileImage(File file, String uid);

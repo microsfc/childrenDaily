@@ -17,7 +17,6 @@ import 'services/fcm_service.dart';
 import 'pages/add_record_page.dart';
 import 'services/storage_service.dart';
 import 'package:flutter/material.dart';
-import 'pages/record_detail_page.dart';
 import 'pages/daily_records_page.dart';
 import 'package:provider/provider.dart';
 import 'pages/height_weight_chart.dart';
@@ -32,10 +31,7 @@ import 'package:children/services/firestore_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:children/repositories/calendar_repository.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
-
-
-
+// import 'pages/record_detail_page.dart';
 
 // Handle FCM background messages
 @pragma('vm:entry-point')

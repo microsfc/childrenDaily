@@ -20,6 +20,29 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
 
+    signingConfigs {
+        release {
+            if (project.hasProperty('key.properties')) {
+                def keyProperties = new Properties()
+                def keyPropertiesFile = rootProject.file('android/key.properties')
+                if (keyPropertiesFile.exists()) {
+                    keyProperties.load(new FileInputStream(keyPropertiesFile))
+                    storeFile file(keyProperties['storeFile'])
+                    storePassword keyProperties['storePassword']
+                    keyAlias keyProperties['keyAlias']
+                    keyPassword keyProperties['keyPassword']
+                }
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            // ...
+            signingConfig signingConfigs.release
+        }
+    }
+    
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.children"

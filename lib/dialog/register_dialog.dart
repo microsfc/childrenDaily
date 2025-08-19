@@ -5,9 +5,9 @@ import 'package:children/models/appuser.dart';
 import 'package:children/state/AppState.dart';
 import 'package:children/pages/home_page.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:children/widgets/error_dialog.dart';
 import 'package:children/services/auth_service.dart';
+import 'package:children/widgets/custom_text_field.dart';
 
 class RegisterDialog extends StatefulWidget {
   const RegisterDialog({super.key});
@@ -24,7 +24,6 @@ class _RegisterDialogState extends State<RegisterDialog> {
   final errorDialog = ErrorDialog(errorMessage: '');
   File? _profileImage; // 用來存放上傳的頭像
 
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -34,47 +33,11 @@ class _RegisterDialogState extends State<RegisterDialog> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       // _cropImage(File(pickedFile.path));
       _profileImage = File(pickedFile.path);
-    }
-  }
-  
-  Future<void> _cropImage(File imageFile) async {
-    CroppedFile? croppedFile = await ImageCropper().cropImage(
-      sourcePath: imageFile.path,
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: '裁剪圖片',
-          toolbarColor: Colors.blue,
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false,
-          aspectRatioPresets: [
-            CropAspectRatioPreset.square,
-            CropAspectRatioPreset.ratio3x2,
-            CropAspectRatioPreset.original,
-            CropAspectRatioPreset.ratio4x3,
-            CropAspectRatioPreset.ratio16x9
-          ],
-        ),
-        IOSUiSettings(
-          title: '裁剪圖片',
-          aspectRatioPresets: [
-            CropAspectRatioPreset.square,
-            CropAspectRatioPreset.ratio3x2,
-            CropAspectRatioPreset.original,
-            CropAspectRatioPreset.ratio4x3,
-            CropAspectRatioPreset.ratio16x9
-          ],
-        ),
-      ],
-    );
-    if (croppedFile != null) {
-      setState(() {
-        _profileImage = File(croppedFile.path);
-      });
     }
   }
 
@@ -84,25 +47,28 @@ class _RegisterDialogState extends State<RegisterDialog> {
     });
     final authService = Provider.of<AuthService>(context, listen: false);
     try {
-     final AppUser? user = await authService.signUpWithEmailAndPassword(
-                      _emailController.text, _passwordController.text, _displayNameController.text, _profileImage);
-     if (user != null) {
-      // ignore: use_build_context_synchronously
-      final appState = AppState.of(context);
-      appState.setUserId(user.uid);
-      appState.setProfileImageUrl(user.profileImageUrl);
-      appState.setUser(user);
-      appState.setFcmToken(user.fcmToken);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('註冊成功，請登入')),
-      );
-      Navigator.of(context).pop(); // 註冊成功後關閉 Dialog
-      Navigator.of(context).pushNamed(HomePage.routeName);
-    } 
+      final AppUser? user = await authService.signUpWithEmailAndPassword(
+          _emailController.text,
+          _passwordController.text,
+          _displayNameController.text,
+          _profileImage);
+      if (user != null) {
+        // ignore: use_build_context_synchronously
+        final appState = AppState.of(context);
+        appState.setUserId(user.uid);
+        appState.setProfileImageUrl(user.profileImageUrl);
+        appState.setUser(user);
+        appState.setFcmToken(user.fcmToken);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('註冊成功，請登入')),
+        );
+        Navigator.of(context).pop(); // 註冊成功後關閉 Dialog
+        Navigator.of(context).pushNamed(HomePage.routeName);
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        SnackBar(content: Text(e.toString())),
+      );
     }
   }
 
@@ -131,19 +97,27 @@ class _RegisterDialogState extends State<RegisterDialog> {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: TextButton(onPressed: _pickImage, child: Text('選擇頭像')),
             ),
-            TextField(
+            CustomTextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              label: 'Email',
+              hint: '請輸入電子信箱',
+              icon: Icons.email,
               keyboardType: TextInputType.emailAddress,
             ),
-            TextField(
+            const SizedBox(height: 16),
+            CustomTextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: '密碼'),
+              label: '密碼',
+              hint: '請輸入密碼',
+              icon: Icons.lock,
               obscureText: true,
             ),
-            TextField(
+            const SizedBox(height: 16),
+            CustomTextField(
               controller: _displayNameController,
-              decoration: InputDecoration(labelText: '顯示名稱'),
+              label: '顯示名稱',
+              hint: '請輸入顯示名稱',
+              icon: Icons.person,
             ),
             if (_errorMessage.isNotEmpty)
               Padding(

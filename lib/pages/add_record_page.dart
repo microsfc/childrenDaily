@@ -12,14 +12,15 @@ import '../viewmodel/add_record_viewmodel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:children/viewmodel/share_viewmodel.dart';
 import 'package:children/repositories/user_repository.dart';
+import 'package:children/widgets/custom_text_field.dart';
 
 class AddRecordPage extends StatefulWidget {
   final BabyRecord? record;
-  
+
   const AddRecordPage({super.key, this.record});
-  
+
   static const routeName = '/add_record';
-  
+
   @override
   State<AddRecordPage> createState() => _AddRecordPageState();
 }
@@ -27,24 +28,24 @@ class AddRecordPage extends StatefulWidget {
 class _AddRecordPageState extends State<AddRecordPage> {
   final _formKey = GlobalKey<FormState>();
   late final AddRecordViewModel _viewModel;
-  
+
   final _noteController = TextEditingController();
   final _tagsController = TextEditingController();
   final _vaccController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
-  
+
   @override
   void initState() {
     super.initState();
     _viewModel = locator<AddRecordViewModel>();
-    
+
     if (widget.record != null) {
       _viewModel.setRecord(widget.record!);
       _initializeControllers();
     }
   }
-  
+
   void _initializeControllers() {
     _noteController.text = _viewModel.note;
     _tagsController.text = _viewModel.tags.join(', ');
@@ -52,7 +53,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
     _weightController.text = _viewModel.weight;
     _heightController.text = _viewModel.height;
   }
-  
+
   @override
   void dispose() {
     _noteController.dispose();
@@ -62,7 +63,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
     _heightController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _pickDate() async {
     final DateTime now = DateTime.now();
     final DateTime? picked = await showDatePicker(
@@ -71,47 +72,46 @@ class _AddRecordPageState extends State<AddRecordPage> {
       firstDate: DateTime(now.year - 10),
       lastDate: DateTime(now.year + 10),
     );
-    
+
     if (picked != null) {
       _viewModel.setSelectedDate(picked);
     }
   }
-  
+
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
       _viewModel.setImageFile(File(pickedFile.path));
     }
   }
-  
+
   Future<void> _saveRecord() async {
     if (!_formKey.currentState!.validate() || _viewModel.selectedDate == null) {
       ErrorHandler.show(
-        context, 
-        'Please fill in all required fields and select a date'
-      );
+          context, 'Please fill in all required fields and select a date');
       return;
     }
-    
+
     // Update view model with latest values from controllers
     _viewModel.setNote(_noteController.text);
     _viewModel.setVaccineStatus(_vaccController.text);
     _viewModel.setHeight(_heightController.text);
     _viewModel.setWeight(_weightController.text);
     // _viewModel.setTags(_tagsController.text);
-    
+
     // Use AuthState to get user ID
     final authState = Provider.of<AuthState>(context, listen: false);
     final userId = authState.currentUser?.uid ?? '';
-    
+
     final record = await _viewModel.saveRecord(userId);
 
     if (!mounted) return;
     Navigator.of(context).pop(record);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
@@ -122,15 +122,16 @@ class _AddRecordPageState extends State<AddRecordPage> {
             isLoading: viewModel.isLoading,
             child: Scaffold(
               appBar: AppBar(
-                title: Text(widget.record != null ? 'Edit Record' : 'Add Record'),
+                title:
+                    Text(widget.record != null ? 'Edit Record' : 'Add Record'),
               ),
               body: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Form(
                   key: _formKey,
-                  child: 
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.95, // for example
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height *
+                        0.95, // for example
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min, // 也很重要，告訴 Column 只包裹內容高度
@@ -152,18 +153,18 @@ class _AddRecordPageState extends State<AddRecordPage> {
                             onPressed: _saveRecord,
                             icon: Icons.save,
                           ),
-                         ),
-                     ],
-                   ),
-                 ),
-               ),
-             ),
-           ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           );
-         },
-       ),
-     );
-   }
+        },
+      ),
+    );
+  }
 
   Widget _buildDatePicker(AddRecordViewModel viewModel) {
     return Row(
@@ -182,7 +183,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
       ],
     );
   }
-  
+
   Widget _buildImagePicker(AddRecordViewModel viewModel) {
     return Row(
       children: [
@@ -193,7 +194,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
             height: 100,
             fit: BoxFit.cover,
           )
-        else if (widget.record?.photoUrl != null && widget.record!.photoUrl.isNotEmpty)
+        else if (widget.record?.photoUrl != null &&
+            widget.record!.photoUrl.isNotEmpty)
           Image.network(
             widget.record!.photoUrl,
             width: 100,
@@ -210,44 +212,42 @@ class _AddRecordPageState extends State<AddRecordPage> {
       ],
     );
   }
-  
+
   Widget _buildFormFields() {
     return Column(
       children: [
-        TextFormField(
+        CustomTextField(
           controller: _vaccController,
-          decoration: const InputDecoration(
-            labelText: 'Note',
-            prefixIcon: Icon(Icons.note),
-          ),
-          textInputAction: TextInputAction.next,
+          label: 'Note',
+          hint: 'Enter note',
+          icon: Icons.note,
         ),
         const SizedBox(height: 16),
-        TextFormField(
+        CustomTextField(
           controller: _weightController,
-          decoration: const InputDecoration(
-            labelText: 'Weight (kg)',
-            prefixIcon: Icon(Icons.monitor_weight),
-          ),
+          label: 'Weight (kg)',
+          hint: 'Enter weight in kg',
+          icon: Icons.monitor_weight,
           keyboardType: TextInputType.number,
-          textInputAction: TextInputAction.next,
         ),
         const SizedBox(height: 16),
-        TextFormField(
+        CustomTextField(
           controller: _heightController,
-          decoration: const InputDecoration(
-            labelText: 'Height (cm)',
-            prefixIcon: Icon(Icons.height),
-          ),
+          label: 'Height (cm)',
+          hint: 'Enter height in cm',
+          icon: Icons.height,
           keyboardType: TextInputType.number,
-          textInputAction: TextInputAction.next,
         ),
         const SizedBox(height: 16),
+        // Note: Keep as TextFormField since CustomTextField doesn't support maxLines and validator
         TextFormField(
           controller: _noteController,
           decoration: const InputDecoration(
             labelText: 'Diary',
             prefixIcon: Icon(Icons.book),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
           ),
           maxLines: 4,
           validator: (value) {
@@ -259,20 +259,20 @@ class _AddRecordPageState extends State<AddRecordPage> {
           textInputAction: TextInputAction.next,
         ),
         const SizedBox(height: 16),
-        TextFormField(
+        CustomTextField(
           controller: _tagsController,
-          decoration: const InputDecoration(
-            labelText: 'Tags (separated by comma)',
-            prefixIcon: Icon(Icons.tag),
-          ),
+          label: 'Tags (separated by comma)',
+          hint: 'Enter tags separated by comma',
+          icon: Icons.tag,
         ),
       ],
     );
   }
-  
+
   Widget _buildSharedUsersList(AddRecordViewModel viewModel) {
     return ChangeNotifierProvider<ShareViewModel>(
-      create: (_) => ShareViewModel(userRepository: FirestoreUserRepository(FirebaseFirestore.instance)),
+      create: (_) => ShareViewModel(
+          userRepository: FirestoreUserRepository(FirebaseFirestore.instance)),
       builder: (context, child) {
         final vm = context.watch<ShareViewModel>();
         vm.sharedUserIds = viewModel.sharedIds.toSet();
@@ -310,9 +310,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
       },
     );
   }
-  
+
   String _formatDate(DateTime date) {
     return '${date.year}/${date.month}/${date.day}';
   }
-  
 }

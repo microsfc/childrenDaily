@@ -1,4 +1,3 @@
-import 'package:rxdart/rxdart.dart';
 import '../models/calendar_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -20,14 +19,18 @@ class FirestoreCalendarRepository implements CalendarRepository {
   @override
   Future<CalendarEvent?> createEvent(CalendarEvent event) async {
     final eventData = event.toFirestore();
-    final docRef = await _firestore.collection('calendar_events').add(eventData);
+    final docRef =
+        await _firestore.collection('calendar_events').add(eventData);
     return event.copyWith(id: docRef.id);
   }
 
   @override
   Future<CalendarEvent> updateEvent(CalendarEvent event) async {
     final eventData = event.toFirestore();
-    await _firestore.collection('calendar_events').doc(event.id).update(eventData);
+    await _firestore
+        .collection('calendar_events')
+        .doc(event.id)
+        .update(eventData);
     return event;
   }
 
@@ -35,7 +38,8 @@ class FirestoreCalendarRepository implements CalendarRepository {
   Future<bool> deleteEvent(String eventId) async {
     try {
       // Check if the event exists before deleting
-      final doc = await _firestore.collection('calendar_events').doc(eventId).get();
+      final doc =
+          await _firestore.collection('calendar_events').doc(eventId).get();
       if (!doc.exists) {
         throw Exception('Event not found');
       }
@@ -74,10 +78,8 @@ class FirestoreCalendarRepository implements CalendarRepository {
 
   @override
   Future<CalendarEvent?> getEventsById(String eventId) async {
-    final doc = await _firestore
-        .collection('calendar_events')
-        .doc(eventId)
-        .get();
+    final doc =
+        await _firestore.collection('calendar_events').doc(eventId).get();
 
     if (doc.exists) {
       return CalendarEvent.fromeFirestore(doc.data()!, doc.id);
@@ -86,19 +88,20 @@ class FirestoreCalendarRepository implements CalendarRepository {
   }
 
   @override
-  Future<List<CalendarEvent>> getEventsByDate(String userId, DateTime date) async {
+  Future<List<CalendarEvent>> getEventsByDate(
+      String userId, DateTime date) async {
     final startDate = DateTime(date.year, date.month, date.day);
     final endDate = DateTime(date.year, date.month, date.day, 23, 59, 59);
 
     // Get events created by the user on the specified date
-    
+
     final createUserSnapShot = await _firestore
         .collection('calendar_events')
         .where('creatorId', isEqualTo: userId)
         .where('startTime', isGreaterThanOrEqualTo: startDate)
         .where('startTime', isLessThan: endDate)
         .get();
-    
+
     // Get events shared with the user on the specified date
     final sharedUserSnapshot = await _firestore
         .collection('calendar_events')
@@ -108,8 +111,10 @@ class FirestoreCalendarRepository implements CalendarRepository {
         .get();
 
     final allEventsBySelecteDay = [
-      ...createUserSnapShot.docs.map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id)),
-      ...sharedUserSnapshot.docs.map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id)),
+      ...createUserSnapShot.docs
+          .map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id)),
+      ...sharedUserSnapshot.docs
+          .map((doc) => CalendarEvent.fromeFirestore(doc.data(), doc.id)),
     ];
 
     // Sort events by start time
@@ -143,6 +148,6 @@ class FirestoreCalendarRepository implements CalendarRepository {
     //   // Sort events by start time
     //   allEvents.sort((a, b) => a.startTime.compareTo(b.startTime));
     //   return allEvents;
-    // }); 
+    // });
   }
-}       
+}

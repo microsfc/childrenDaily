@@ -148,6 +148,22 @@ class AuthState with ChangeNotifier {
     }
   }
 
+  Future<void> updateUser(AppUser user) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _userRepository.updateUser(user);
+      _currentUser = user;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   static AuthState of(BuildContext context) {
     return Provider.of<AuthState>(context, listen: false);
   }
